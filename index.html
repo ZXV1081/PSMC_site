@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PSMC - Prosto Server Minecraft</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Minecraft&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="img/favicon.ico">
+    <meta http-equiv="Permissions-Policy" content="unload=()">
+</head>
+<body>
+    <div class="container">
+        <!-- Заголовок -->
+        <header class="header">
+            <div class="title-section">
+                <img src="img/title_img.png" alt="PSMC Server" class="title-image" id="serverImage">
+                <div class="title-glow"></div>
+                <div class="server-brand">
+                    <h1 class="server-title">PSMC</h1>
+                    <p class="server-subtitle">Prosto Server Minecraft</p>
+                    <div class="server-tagline">Просто сервер. Просто играй.</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Статус сервера -->
+        <section class="online-section">
+            <h2><i class="fas fa-heart"></i> Состояние сервера</h2>
+            <div class="server-status">
+                <div class="status-card">
+                    <div class="status-header">
+                        <div class="status-indicator" id="statusIndicator"></div>
+                        <div class="status-info">
+                            <h3 id="statusText">Проверяем соединение...</h3>
+                            <p class="status-sub">Реальный статус вашего сервера</p>
+                        </div>
+                        <div class="player-count-box" id="playerCount">
+                            <span class="count-number">?</span>
+                            <span class="count-label">онлайн</span>
+                        </div>
+                    </div>
+                    
+                    <div class="server-details">
+                        <div class="detail-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <div>
+                                <label>Адрес сервера</label>
+                                <strong id="serverIp">psmc_java.creepers.sbs</strong>
+                            </div>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-code"></i>
+                            <div>
+                                <label>Версия игры</label>
+                                <strong id="serverVersion">1.21.11</strong>
+                            </div>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-bolt"></i>
+                            <div>
+                                <label>Пинг</label>
+                                <strong id="serverPing">—</strong>
+                            </div>
+                        </div>
+                        <div class="detail-item">
+                            <i class="far fa-clock"></i>
+                            <div>
+                                <label>Последняя проверка</label>
+                                <strong id="lastUpdate">—</strong>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="status-actions">
+                        <button class="action-btn primary" id="refreshBtn">
+                            <i class="fas fa-sync-alt"></i> Проверить сейчас
+                        </button>
+                        <button class="action-btn secondary" id="copyIpBtn">
+                            <i class="far fa-copy"></i> Скопировать IP
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- Что такое PSMC -->
+        <section class="about-section">
+            <h2><i class="fas fa-question-circle"></i> Что такое PSMC?</h2>
+            <div class="about-content">
+                <div class="about-card honest-card">
+                    <div class="honest-header">
+                        <i class="fas fa-handshake"></i>
+                        <h3>Честно о сервере</h3>
+                    </div>
+                    <p class="honest-text">
+                        <strong>PSMC</strong> — это простой, чистый сервер там нет модов и плагинов которые влеяют на гемплей. 
+                        Здесь нет приватов, нет экономики, нет донатов. 
+                        Только ванильный Minecraft в его чистом виде.
+                    </p>
+                    <div class="features-list">
+                        <div class="feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Чистый ванильный сервер</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Без приватов и защиты</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>С голосовым чатом</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Бесплатно и навсегда</span>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- Как подключиться -->
+        <section class="connect-section">
+            <h2><i class="fas fa-plug"></i> Как подключиться</h2>
+            
+            <div class="platform-tabs">
+                <button class="tab-btn active" data-tab="java">Java Edition</button>
+                <button class="tab-btn" data-tab="bedrock">Bedrock Edition</button>
+            </div>
+            
+            <div class="tab-content active" id="javaTab">
+                <div class="connect-steps">
+                    <div class="step">
+                        <div class="step-icon">
+                            <i class="fab fa-java"></i>
+                        </div>
+                        <h3>1. Запустите Minecraft Java</h3>
+                        <p>Версия <strong>1.21.11</strong></p>
+                    </div>
+                    <div class="step">
+                        <div class="step-icon">
+                            <i class="fas fa-plus"></i>
+                        </div>
+                        <h3>2. Добавьте сервер</h3>
+                        <p>Меню → Сетевая игра → Добавить сервер</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-icon">
+                            <i class="fas fa-keyboard"></i>
+                        </div>
+                        <h3>3. Введите адрес</h3>
+                        <div class="server-address">
+                            <code id="javaAddress">psmc_java.creepers.sbs</code>
+                            <button class="copy-small" data-address="psmc_java.creepers.sbs">
+                                <i class="far fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-icon">
+                            <i class="fas fa-gamepad"></i>
+                        </div>
+                        <h3>4. Играйте!</h3>
+                        <p>Присоединяйтесь к серверу</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="bedrockTab">
+                <div class="bedrock-info">
+                    <div class="bedrock-notice">
+                        <i class="fas fa-mobile-alt"></i>
+                        <h3>Поддержка Bedrock Edition</h3>
+                        <p>Сервер доступен для Bedrock (PE/Xbox/PS/Switch) через порт <strong>19132</strong></p>
+                    </div>
+                    
+                    <div class="connect-steps">
+                        <div class="step">
+                            <h3>1. Откройте Minecraft Bedrock</h3>
+                            <p>Версия 1.21.132 может быть можно и выше</p>
+                        </div>
+                        <div class="step">
+                            <h3>2. Перейдите во вкладку "Серверы"</h3>
+                            <p>И нажмите "Добавить сервер"</p>
+                        </div>
+                        <div class="step">
+                            <h3>3. Введите данные:</h3>
+                            <div class="bedrock-address">
+                                <div class="address-field">
+                                    <label>IP Адрес:</label>
+                                    <code>185.22.154.9</code>
+                                </div>
+                                <div class="address-field">
+                                    <label>Порт:</label>
+                                    <code>19132</code>
+                                </div>
+                                <button class="copy-full" data-bedrock="185.22.154.9:19132">
+                                    <i class="far fa-copy"></i> Скопировать оба
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- Правила сервера -->
+        <section class="rules-section">
+            <h2><i class="fas fa-scroll"></i> Простые правила</h2>
+            <div class="rules-content">
+                <div class="rule-card">
+                    <div class="rule-icon">
+                        <i class="fas fa-user-friends"></i>
+                    </div>
+                    <h3>Уважайте других</h3>
+                    <p>Не гриферите, не воруйте чужие постройки</p>
+                </div>
+                <div class="rule-card">
+                    <div class="rule-icon">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <h3>Общайтесь культурно</h3>
+                    <p>Без оскорблений и спама в чате</p>
+                </div>
+                <div class="rule-card">
+                    <div class="rule-icon">
+                        <i class="fas fa-leaf"></i>
+                    </div>
+                    <h3>Чистота сервера</h3>
+                    <p>Не оставляйте лаг-машины и мусор</p>
+                </div>
+                <div class="rule-card">
+                    <div class="rule-icon">
+                        <i class="fas fa-seedling"></i>
+                    </div>
+                    <h3>Стройте ответственно</h3>
+                    <p>Помните - все постройки могут быть повреждены</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Быстрое подключение -->
+        <div class="quick-connect">
+            <h3><i class="fas fa-bolt"></i> Быстрое подключение</h3>
+            <div class="quick-buttons">
+                <button class="quick-btn java-btn" id="quickJava">
+                    <i class="fab fa-java"></i> Копировать для Java
+                </button>
+                <button class="quick-btn bedrock-btn" id="quickBedrock">
+                    <i class="fas fa-mobile-alt"></i> Копировать для Bedrock
+                </button>
+            </div>
+            <div class="address-display">
+                <div class="address-box">
+                    <span class="address-label">Java:</span>
+                    <code class="address-value">psmc_java.creepers.sbs</code>
+                </div>
+                <div class="address-box">
+                    <span class="address-label">Bedrock:</span>
+                    <code class="address-value">185.22.154.9:19132</code>
+                </div>
+            </div>
+        </div>
+
+        <!-- Статистика и информация -->
+        <div class="info-panel">
+            <div class="info-item">
+                <i class="fas fa-calendar-alt"></i>
+                <div>
+                    <div class="info-label">Год основания</div>
+                    <div class="info-value">2026</div>
+                </div>
+            </div>
+            <div class="info-item">
+                <i class="fas fa-server"></i>
+                <div>
+                    <div class="info-label">Тип сервера</div>
+                    <div class="info-value">Ванильное выживание</div>
+                </div>
+            </div>
+            <div class="info-item">
+                <i class="fas fa-shield-alt"></i>
+                <div>
+                    <div class="info-label">Защита</div>
+                    <div class="info-value">На сервере есть модераторы которые следят за порядком</div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <h3>PSMC</h3>
+                    <p>Prosto Server Minecraft</p>
+                    <p class="footer-motto">Просто игра в хорошей компании</p>
+                </div>
+                
+                <div class="footer-links">
+                    <a href="https://discord.gg/7TqFue25C" class="footer-link">
+                        <i class="fab fa-discord"></i> Discord
+                    </a>
+                    <a href="https://twitch.tv/ValpiPro" class="footer-link">
+                        <i class="fab fa-twitch"></i> Twitch
+                    </a>
+                    <a href="https://www.donationalerts.com/r/ValpiPro" class="footer-link">
+                        <i class="fa fa-donate"></i> Donation Alert
+                    </a>
+                </div>
+                
+            </div>
+            
+            <div class="footer-bottom">
+                <p>Copyright © 2026 PSMC - Prosto Server Minecraft. Данные обновляются в реальном времени.</p>
+                <p class="server-status-note">
+                    <i class="fas fa-sync-alt"></i> Статус обновляется каждые 30 секунд
+                </p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
