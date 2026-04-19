@@ -1442,7 +1442,7 @@ h2 i {
     display: block;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 769px) {
     .bedrock-unavailable {
         flex-direction: column;
         text-align: center;
