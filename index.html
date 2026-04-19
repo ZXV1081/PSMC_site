@@ -174,38 +174,12 @@
             </div>
             
             <div class="tab-content" id="bedrockTab">
-                <div class="bedrock-info">
-                    <div class="bedrock-notice">
-                        <i class="fas fa-mobile-alt"></i>
-                        <h3>Поддержка Bedrock Edition</h3>
-                        <p>Сервер доступен для Bedrock (PE/Xbox/PS/Switch) через порт <strong>19132</strong></p>
-                    </div>
-                    
-                    <div class="connect-steps">
-                        <div class="step">
-                            <h3>1. Откройте Minecraft Bedrock</h3>
-                            <p>Любая версия если ваша версия не поддерживается то напишите нам в дискорд канал</p>
-                        </div>
-                        <div class="step">
-                            <h3>2. Перейдите во вкладку "Серверы"</h3>
-                            <p>И нажмите "Добавить сервер"</p>
-                        </div>
-                        <div class="step">
-                            <h3>3. Введите данные:</h3>
-                            <div class="bedrock-address">
-                                <div class="address-field">
-                                    <label>IP Адрес:</label>
-                                    <code>185.22.154.9</code>
-                                </div>
-                                <div class="address-field">
-                                    <label>Порт:</label>
-                                    <code>19132</code>
-                                </div>
-                                <button class="copy-full" data-bedrock="185.22.154.9:19132">
-                                    <i class="far fa-copy"></i> Скопировать оба
-                                </button>
-                            </div>
-                        </div>
+                <div class="bedrock-unavailable">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <div>
+                        <h3>Bedrock Edition временно недоступна</h3>
+                        <p>Пожалуйста, используйте <strong>Java Edition</strong> или ожидайте возобновления поддержки Bedrock.</p>
+                        <p class="bedrock-note">Адрес Bedrock: <code>185.22.154.9:19132</code> — будет работать после включения.</p>
                     </div>
                 </div>
             </div>
@@ -219,31 +193,34 @@
             <div class="rules-content">
                 <div class="rule-card">
                     <div class="rule-icon">
-                        <i class="fas fa-user-friends"></i>
-                    </div>
-                    <h3>Уважайте других</h3>
-                    <p>Не гриферите, не воруйте чужие постройки</p>
-                </div>
-                <div class="rule-card">
-                    <div class="rule-icon">
                         <i class="fas fa-comments"></i>
                     </div>
                     <h3>Общайтесь культурно</h3>
-                    <p>Без оскорблений и спама в чате</p>
+                    <p>Без оскорблений и спама в чате(мут на 30 минут)</p>
                 </div>
+
                 <div class="rule-card">
                     <div class="rule-icon">
                         <i class="fas fa-leaf"></i>
                     </div>
                     <h3>Чистота сервера</h3>
-                    <p>Не оставляйте лаг-машины и мусор</p>
+                    <p>Не оставляйте лаг-машины И НЕ СТРОЙТЕ ОРБИТАЛЬНУЮ ПУШКУ(бан на 3 недели если повторится бан на всегда)</p>
                 </div>
+
                 <div class="rule-card">
                     <div class="rule-icon">
-                        <i class="fas fa-seedling"></i>
+                        <i class="fas fa-gamepad"></i>
                     </div>
-                    <h3>Стройте ответственно</h3>
-                    <p>Помните - все постройки могут быть повреждены</p>
+                    <h3>Не читерите</h3>
+                    <p>Любые читы запришены(бан на 10 дней если повторится бан на всегда)</p>
+                </div>
+
+                <div class="rule-card">
+                    <div class="rule-icon">
+                        <i class="fas fa-leaf"></i>
+                    </div>
+                    <h3>Чистота сервера</h3>
+                    <p>Не стройте плохие постройки(бан на 2 часа)</p>
                 </div>
             </div>
         </section>
@@ -255,8 +232,8 @@
                 <button class="quick-btn java-btn" id="quickJava">
                     <i class="fab fa-java"></i> Копировать для Java
                 </button>
-                <button class="quick-btn bedrock-btn" id="quickBedrock">
-                    <i class="fas fa-mobile-alt"></i> Копировать для Bedrock
+                <button class="quick-btn bedrock-btn" id="quickBedrock" disabled>
+                    <i class="fas fa-mobile-alt"></i> Bedrock недоступен
                 </button>
             </div>
             <div class="address-display">
@@ -266,7 +243,8 @@
                 </div>
                 <div class="address-box">
                     <span class="address-label">Bedrock:</span>
-                    <code class="address-value">185.22.154.9:19132</code>
+                    <code class="address-value unavailable">185.22.154.9:19132</code>
+                    <span class="unavailable-badge">(недоступно)</span>
                 </div>
             </div>
         </div>
@@ -291,7 +269,7 @@
                 <i class="fas fa-shield-alt"></i>
                 <div>
                     <div class="info-label">Защита</div>
-                    <div class="info-value">На сервере есть модераторы которые следят за порядком(скоро)</div>
+                    <div class="info-value">На сервере есть модераторы которые следят за порядком</div>
                 </div>
             </div>
         </div>

@@ -444,29 +444,46 @@ function setupEventListeners() {
         });
     });
     
-    // Быстрое копирование
-    const copyButtons = [
+    // Быстрое копирование (Java и Bedrock с проверкой)
+    const javaCopyButtons = [
         elements.quickJava,
-        elements.quickBedrock,
-        ...document.querySelectorAll('.copy-small'),
-        document.querySelector('.copy-full')
+        ...document.querySelectorAll('.copy-small[data-address]')
     ].filter(Boolean);
     
-    copyButtons.forEach(btn => {
-        btn.addEventListener('click', function() {
+    javaCopyButtons.forEach(btn => {
+        btn.addEventListener('click', function(e) {
             let text = '';
-            
             if (this === elements.quickJava) {
                 text = `${SERVER_CONFIG.ip}:${SERVER_CONFIG.javaPort}`;
-            } else if (this === elements.quickBedrock) {
-                text = `${SERVER_CONFIG.ip}:${SERVER_CONFIG.bedrockPort}`;
             } else if (this.dataset.address) {
                 text = this.dataset.address;
-            } else if (this.dataset.bedrock) {
-                text = this.dataset.bedrock;
             }
-            
             if (text) copyToClipboard(text);
+        });
+    });
+    
+    // Bedrock кнопки – либо отключены, либо показывают предупреждение
+    const bedrockButtons = [
+        elements.quickBedrock,
+        document.querySelector('.copy-full[data-bedrock]')
+    ].filter(Boolean);
+    
+    bedrockButtons.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            // Если кнопка disabled или это bedrock-кнопка
+            if (this.disabled || this.classList.contains('bedrock-btn') || this.dataset.bedrock) {
+                e.preventDefault();
+                showNotification('Bedrock Edition временно недоступна', 'error');
+                return false;
+            }
+        });
+    });
+    
+    // Также блокируем любые попытки скопировать bedrock адрес через другие элементы
+    document.querySelectorAll('[data-bedrock]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            showNotification('Bedrock Edition временно недоступна', 'error');
         });
     });
 }
@@ -494,7 +511,7 @@ function copyToClipboard(text) {
             showNotification(`Скопировано: ${text}`, 'success');
             
             const btn = event?.target.closest('button');
-            if (btn) {
+            if (btn && !btn.disabled) {
                 const original = btn.innerHTML;
                 btn.innerHTML = '<i class="fas fa-check"></i> Скопировано!';
                 btn.style.background = 'linear-gradient(135deg, #4CAF50, #2E7D32)';

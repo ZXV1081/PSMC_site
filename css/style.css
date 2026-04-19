@@ -1352,3 +1352,105 @@ h2 i {
     display: block;
     animation: fadeIn 0.3s ease;
 }
+
+/* Bedrock недоступен - стили */
+.bedrock-unavailable {
+    background: rgba(244, 67, 54, 0.1);
+    border: 2px solid var(--danger);
+    border-radius: 15px;
+    padding: 30px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 25px;
+    flex-wrap: wrap;
+    animation: fadeIn 0.4s ease;
+}
+
+.bedrock-unavailable i {
+    font-size: 3rem;
+    color: var(--danger);
+}
+
+.bedrock-unavailable h3 {
+    color: var(--danger);
+    margin-bottom: 10px;
+}
+
+.bedrock-unavailable p {
+    color: var(--light);
+    margin-bottom: 8px;
+}
+
+.bedrock-unavailable code {
+    background: rgba(0,0,0,0.4);
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-family: 'Minecraft', monospace;
+    color: var(--warning);
+}
+
+.address-value.unavailable {
+    opacity: 0.6;
+    text-decoration: line-through;
+}
+
+.unavailable-badge {
+    display: inline-block;
+    background: var(--danger);
+    color: white;
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 20px;
+    margin-left: 10px;
+    vertical-align: middle;
+}
+
+.quick-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    filter: grayscale(0.2);
+    transform: none !important;
+}
+
+.quick-btn:disabled:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+/* Тултип для отключённой кнопки */
+.quick-btn:disabled::after {
+    content: "Bedrock временно недоступен";
+    position: absolute;
+    background: var(--dark);
+    color: var(--danger);
+    font-size: 0.75rem;
+    padding: 4px 8px;
+    border-radius: 6px;
+    white-space: nowrap;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 8px;
+    display: none;
+    z-index: 10;
+    border: 1px solid var(--danger);
+}
+
+.quick-btn:disabled:hover::after {
+    display: block;
+}
+
+@media (max-width: 768px) {
+    .bedrock-unavailable {
+        flex-direction: column;
+        text-align: center;
+        gap: 15px;
+    }
+    .quick-btn:disabled::after {
+        white-space: normal;
+        width: 180px;
+        text-align: center;
+    }
+}
