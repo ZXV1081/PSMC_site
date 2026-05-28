@@ -57,6 +57,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Назначение обработчиков
     setupEventListeners();
     
+    // Инициализация информационных вкладок
+    setupInfoTabs();
+    
     // Первая проверка сервера
     checkServerStatus(true);
     
@@ -66,6 +69,27 @@ document.addEventListener('DOMContentLoaded', function() {
     // Обновление времени
     setInterval(updateTimeDisplay, 60000);
 });
+
+// Функция для переключения информационных вкладок (Информация, Правила, Плагины)
+function setupInfoTabs() {
+    const infoTabBtns = document.querySelectorAll('.info-tab-btn');
+    const infoTabContents = document.querySelectorAll('.info-tab-content');
+    if (!infoTabBtns.length) return;
+    
+    infoTabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const tabId = btn.getAttribute('data-info-tab');
+            infoTabBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            infoTabContents.forEach(content => {
+                content.classList.remove('active');
+                if (content.id === `info-${tabId}`) {
+                    content.classList.add('active');
+                }
+            });
+        });
+    });
+}
 
 // Инициализация элементов
 function initElements() {

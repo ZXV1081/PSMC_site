@@ -87,45 +87,6 @@
 
         <div class="divider"></div>
 
-        <!-- Что такое PSMC -->
-        <section class="about-section">
-            <h2><i class="fas fa-question-circle"></i> Что такое PSMC?</h2>
-            <div class="about-content">
-                <div class="about-card honest-card">
-                    <div class="honest-header">
-                        <i class="fas fa-handshake"></i>
-                        <h3>Честно о сервере</h3>
-                    </div>
-                    <p class="honest-text">
-                        <strong>PSMC</strong> — это простой, чистый сервер там нет модов и плагинов которые влеяют на гемплей. 
-                        Здесь нет приватов, нет экономики, нет донатов. 
-                        Только ванильный Minecraft в его чистом виде.
-                    </p>
-                    <div class="features-list">
-                        <div class="feature">
-                            <i class="fas fa-check-circle"></i>
-                            <span>Чистый ванильный сервер</span>
-                        </div>
-                        <div class="feature">
-                            <i class="fas fa-check-circle"></i>
-                            <span>Без приватов и защиты</span>
-                        </div>
-                        <div class="feature">
-                            <i class="fas fa-check-circle"></i>
-                            <span>С голосовым чатом</span>
-                        </div>
-                        <div class="feature">
-                            <i class="fas fa-check-circle"></i>
-                            <span>Бесплатно и навсегда</span>
-                        </div>
-                    </div>
-                </div>
-                
-            </div>
-        </section>
-
-        <div class="divider"></div>
-
         <!-- Как подключиться -->
         <section class="connect-section">
             <h2><i class="fas fa-plug"></i> Как подключиться</h2>
@@ -187,43 +148,127 @@
 
         <div class="divider"></div>
 
-        <!-- Правила сервера -->
-        <section class="rules-section">
-            <h2><i class="fas fa-scroll"></i> Простые правила</h2>
-            <div class="rules-content">
-                <div class="rule-card">
-                    <div class="rule-icon">
-                        <i class="fas fa-comments"></i>
+        <!-- НАВИГАЦИЯ ПО ИНФОРМАЦИИ (ВКЛАДКИ) -->
+        <div class="info-tabs">
+            <div class="info-tabs-header">
+                <button class="info-tab-btn active" data-info-tab="about">ℹ️ Информация</button>
+                <button class="info-tab-btn" data-info-tab="rules">📜 Правила</button>
+                <button class="info-tab-btn" data-info-tab="plugins">🧩 Рекомендуемые плагины/моды</button>
+            </div>
+            <div class="info-tabs-content">
+                <!-- Вкладка "Информация" -->
+                <div class="info-tab-content active" id="info-about">
+                    <div class="about-card honest-card">
+                        <div class="honest-header">
+                            <i class="fas fa-handshake"></i>
+                            <h3>Честно о сервере</h3>
+                        </div>
+                        <p class="honest-text">
+                            <strong>PSMC</strong> — это сервер.
+                        </p>
+                        <div class="features-list">
+                            <div class="feature">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Без приватов и защиты</span>
+                            </div>
+                            <div class="feature">
+                                <i class="fas fa-check-circle"></i>
+                                <span>С голосовым чатом</span>
+                            </div>
+                            <div class="feature">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Бесплатно и навсегда</span>
+                            </div>
+                        </div>
                     </div>
-                    <h3>Общайтесь культурно</h3>
-                    <p>Без оскорблений и спама в чате(мут на 30 минут)</p>
+                    <div class="info-panel">
+                        <div class="info-item">
+                            <i class="fas fa-calendar-alt"></i>
+                            <div>
+                                <div class="info-label">Год основания</div>
+                                <div class="info-value">2026</div>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-shield-alt"></i>
+                            <div>
+                                <div class="info-label">Защита</div>
+                                <div class="info-value">На сервере есть модераторы которые следят за порядком</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="rule-card">
-                    <div class="rule-icon">
-                        <i class="fas fa-leaf"></i>
+                <!-- Вкладка "Правила" -->
+                <div class="info-tab-content" id="info-rules">
+                    <div class="rules-content">
+                        <div class="rule-card">
+                            <div class="rule-icon">
+                                <i class="fas fa-comments"></i>
+                            </div>
+                            <h3>Общайтесь культурно</h3>
+                            <p>Без оскорблений и спама в чате (мут на 30 минут)</p>
+                        </div>
+                        <div class="rule-card">
+                            <div class="rule-icon">
+                                <i class="fas fa-leaf"></i>
+                            </div>
+                            <h3>Чистота сервера</h3>
+                            <p>Не оставляйте лаг-машины И НЕ СТРОЙТЕ ОРБИТАЛЬНУЮ ПУШКУ (бан на 3 недели, при повторе — бан навсегда)</p>
+                        </div>
+                        <div class="rule-card">
+                            <div class="rule-icon">
+                                <i class="fas fa-gamepad"></i>
+                            </div>
+                            <h3>Не читерите</h3>
+                            <p>Любые читы запрещены (бан на 10 дней, при повторе — бан навсегда)</p>
+                        </div>
+                        <div class="rule-card">
+                            <div class="rule-icon">
+                                <i class="fas fa-leaf"></i>
+                            </div>
+                            <h3>Чистота сервера</h3>
+                            <p>Не стройте плохие постройки (бан на 2 часа)</p>
+                        </div>
                     </div>
-                    <h3>Чистота сервера</h3>
-                    <p>Не оставляйте лаг-машины И НЕ СТРОЙТЕ ОРБИТАЛЬНУЮ ПУШКУ(бан на 3 недели если повторится бан на всегда)</p>
+                    <div class="rules-note">
+                        <i class="fas fa-gavel"></i>
+                        <p><strong>Важно:</strong> Наказания применяются модераторами в индивидуальном порядке. Сервер стремится быть дружелюбным местом для всех.</p>
+                    </div>
                 </div>
 
-                <div class="rule-card">
-                    <div class="rule-icon">
-                        <i class="fas fa-gamepad"></i>
+                <!-- Вкладка "Рекомендуемые плагины/моды" -->
+                <div class="info-tab-content" id="info-plugins">
+                    <div class="plugins-grid">
+                        <div class="plugin-card">
+                            <i class="fas fa-microphone-alt"></i>
+                            <h3>Simple Voice Chat</h3>
+                            <p>Голосовой чат в игре. Общайтесь с другими игроками в реальном времени.</p>
+                            <a href="https://modrinth.com/plugin/simple-voice-chat" target="_blank" class="plugin-link">Скачать →</a>
+                        </div>
+                        <div class="plugin-card">
+                            <i class="fas fa-tachometer-alt"></i>
+                            <h3>Sodium / OptiFine</h3>
+                            <p>Оптимизация графики и производительности. Рекомендуется для слабых ПК.</p>
+                            <a href="https://modrinth.com/mod/sodium" target="_blank" class="plugin-link">Sodium →</a>
+                        </div>
+                        <div class="plugin-card">
+                            <i class="fas fa-map"></i>
+                            <h3>Xaero's Minimap</h3>
+                            <p>Мини-карта и карта мира. Удобная навигация.</p>
+                            <a href="https://modrinth.com/mod/xaeros-minimap" target="_blank" class="plugin-link">Скачать →</a>
+                        </div>
+                        <div class="plugin-card">
+                            <i class="fas fa-mouse-pointer"></i>
+                            <h3>Zoomify / OK Zoomer</h3>
+                            <p>Приближение камеры для лучшего обзора.</p>
+                            <a href="https://modrinth.com/mod/zoomify" target="_blank" class="plugin-link">Скачать →</a>
+                        </div>
                     </div>
-                    <h3>Не читерите</h3>
-                    <p>Любые читы запришены(бан на 10 дней если повторится бан на всегда)</p>
-                </div>
-
-                <div class="rule-card">
-                    <div class="rule-icon">
-                        <i class="fas fa-leaf"></i>
-                    </div>
-                    <h3>Чистота сервера</h3>
-                    <p>Не стройте плохие постройки(бан на 2 часа)</p>
+                    <p class="plugins-note"><i class="fas fa-info-circle"></i> Эти моды/плагины не обязательны, но улучшают опыт игры. Все они совместимы с ванильным сервером.</p>
                 </div>
             </div>
-        </section>
+        </div>
 
         <!-- Быстрое подключение -->
         <div class="quick-connect">
@@ -245,31 +290,6 @@
                     <span class="address-label">Bedrock:</span>
                     <code class="address-value unavailable">185.22.154.9:19132</code>
                     <span class="unavailable-badge">(недоступно)</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Статистика и информация -->
-        <div class="info-panel">
-            <div class="info-item">
-                <i class="fas fa-calendar-alt"></i>
-                <div>
-                    <div class="info-label">Год основания</div>
-                    <div class="info-value">2026</div>
-                </div>
-            </div>
-            <div class="info-item">
-                <i class="fas fa-server"></i>
-                <div>
-                    <div class="info-label">Тип сервера</div>
-                    <div class="info-value">SMP - Ванильное выживание</div>
-                </div>
-            </div>
-            <div class="info-item">
-                <i class="fas fa-shield-alt"></i>
-                <div>
-                    <div class="info-label">Защита</div>
-                    <div class="info-value">На сервере есть модераторы которые следят за порядком</div>
                 </div>
             </div>
         </div>
@@ -307,5 +327,4 @@
 
     <script src="js/script.js"></script>
 </body>
-
 </html>

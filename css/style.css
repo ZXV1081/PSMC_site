@@ -1454,3 +1454,141 @@ h2 i {
         text-align: center;
     }
 }
+
+/* Информационные вкладки (Информация, Правила, Плагины) */
+.info-tabs {
+    margin: 40px 0;
+}
+
+.info-tabs-header {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 30px;
+    border-bottom: 2px solid var(--border);
+    flex-wrap: wrap;
+}
+
+.info-tab-btn {
+    background: transparent;
+    border: none;
+    padding: 12px 24px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 8px 8px 0 0;
+    position: relative;
+}
+
+.info-tab-btn:hover {
+    color: var(--primary);
+    background: rgba(74, 158, 255, 0.1);
+}
+
+.info-tab-btn.active {
+    color: var(--primary);
+    background: rgba(74, 158, 255, 0.15);
+    border-bottom: 2px solid var(--primary);
+}
+
+.info-tab-content {
+    display: none;
+    animation: fadeIn 0.3s ease;
+}
+
+.info-tab-content.active {
+    display: block;
+}
+
+/* Плавное появление */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Стили для плагинов (если ещё нет) */
+.plugins-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 25px;
+    margin-bottom: 30px;
+}
+
+.plugin-card {
+    background: var(--card-bg);
+    padding: 25px;
+    border-radius: 15px;
+    text-align: center;
+    border: 1px solid var(--border);
+    transition: transform 0.3s ease;
+}
+
+.plugin-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--primary);
+}
+
+.plugin-card i {
+    font-size: 2.5rem;
+    color: var(--primary);
+    margin-bottom: 15px;
+}
+
+.plugin-card h3 {
+    margin-bottom: 12px;
+    color: var(--light);
+}
+
+.plugin-card p {
+    color: var(--muted);
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+}
+
+.plugin-link {
+    display: inline-block;
+    background: rgba(74, 158, 255, 0.2);
+    color: var(--primary);
+    padding: 8px 16px;
+    border-radius: 20px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.plugin-link:hover {
+    background: var(--primary);
+    color: white;
+}
+
+.plugins-note {
+    background: rgba(74, 158, 255, 0.1);
+    border-radius: 10px;
+    padding: 15px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9rem;
+}
+
+.plugins-note i {
+    color: var(--primary);
+    font-size: 1.2rem;
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 768px) {
+    .info-tabs-header {
+        flex-direction: column;
+    }
+    .info-tab-btn {
+        width: 100%;
+        text-align: center;
+        border-radius: 8px;
+    }
+    .plugins-grid {
+        grid-template-columns: 1fr;
+    }
+}
