@@ -47,7 +47,7 @@
                             <i class="fas fa-map-marker-alt"></i>
                             <div>
                                 <label>Адрес сервера</label>
-                                <strong id="serverIp">psmc_java.creepers.sbs</strong>
+                                <strong id="serverIp">psmc.minerent.io:25565</strong>
                             </div>
                         </div>
                         <div class="detail-item">
@@ -118,8 +118,8 @@
                         </div>
                         <h3>3. Введите адрес</h3>
                         <div class="server-address">
-                            <code id="javaAddress">psmc_java.creepers.sbs</code>
-                            <button class="copy-small" data-address="psmc_java.creepers.sbs">
+                            <code id="javaAddress">psmc.minerent.io:25565</code>
+                            <button class="copy-small" data-address="psmc.minerent.io:25565">
                                 <i class="far fa-copy"></i>
                             </button>
                         </div>
@@ -153,7 +153,8 @@
             <div class="info-tabs-header">
                 <button class="info-tab-btn active" data-info-tab="about">ℹ️ Информация</button>
                 <button class="info-tab-btn" data-info-tab="rules">📜 Правила</button>
-                <button class="info-tab-btn" data-info-tab="plugins">🧩 Рекомендуемые плагины/моды</button>
+                <button class="info-tab-btn" data-info-tab="plugins">🧩 Рекомендуемые моды</button>
+                <button class="info-tab-btn" data-info-tab="shop">🛒 Магазин</button>
             </div>
             <div class="info-tabs-content">
                 <!-- Вкладка "Информация" -->
@@ -249,6 +250,25 @@
                     </div>
                     <p class="plugins-note"><i class="fas fa-info-circle"></i> Эти моды/плагины не обязательны, но улучшают опыт игры. Все они совместимы с ванильным сервером.</p>
                 </div>
+
+                <!-- Вкладка "Магазин" -->
+                <div class="info-tab-content" id="info-shop">
+                    <div class="shop-container">
+                        <h3 style="color:var(--primary); margin-bottom:15px;">🛍️ Магазин доната</h3>
+                        <p style="color:var(--muted); margin-bottom:30px;">Приобретайте привилегии и косметику для сервера PSMC!</p>
+                        <div id="shopProducts" class="shop-grid">
+                            <!-- Товары будут загружены через API -->
+                            <div style="text-align:center; padding:40px;">
+                                <i class="fas fa-spinner fa-spin" style="font-size:2rem; color:var(--primary);"></i>
+                                <p style="color:var(--muted);">Загрузка товаров...</p>
+                            </div>
+                        </div>
+                        <p style="color:var(--muted); margin-top:20px; font-size:0.9rem; text-align:center;">
+                            <i class="fas fa-lock"></i> Все покупки обрабатываются через защищённое соединение EasyDonate.
+                        </p>
+                    </div>
+                </div>
+
             </div>
         </div>
 
@@ -266,11 +286,11 @@
             <div class="address-display">
                 <div class="address-box">
                     <span class="address-label">Java:</span>
-                    <code class="address-value">psmc_java.creepers.sbs</code>
+                    <code class="address-value">psmc.minerent.io:25565</code>
                 </div>
                 <div class="address-box">
                     <span class="address-label">Bedrock:</span>
-                    <code class="address-value unavailable">185.22.154.9:19132</code>
+                    <code class="address-value unavailable">psmc.minerent.io:19132</code>
                     <span class="unavailable-badge">(недоступно)</span>
                 </div>
             </div>

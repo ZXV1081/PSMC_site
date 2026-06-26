@@ -1,22 +1,21 @@
 // Конфигурация сервера PSMC
 const SERVER_CONFIG = {
-    ip: "185.22.154.9",
-    javaPort: "29067",
+    ip: "psmc.minerent.io",
+    javaPort: "25565",
     bedrockPort: "19132",
     version: "1.21.11",
     currentYear: 2026,
-    // API для проверки сервера
     apis: [
-        {
-            name: "MCSRVSTAT",
-            url: "https://api.mcsrvstat.us/2/",
-            timeout: 5000
-        },
-        {
-            name: "MINETOOLS",
-            url: "https://api.minetools.eu/ping/",
-            timeout: 5000
-        },
+        // {
+        //     name: "MCSRVSTAT",
+        //     url: "https://api.mcsrvstat.us/2/",
+        //     timeout: 5000
+        // },
+        // {
+        //     name: "MINETOOLS",
+        //     url: "https://api.minetools.eu/ping/",
+        //     timeout: 5000
+        // },
         {
             name: "MCAPI",
             url: "https://api.mcstatus.io/v2/status/java/",
@@ -25,13 +24,9 @@ const SERVER_CONFIG = {
     ]
 };
 
-// Состояние сервера
 let serverState = {
     online: false,
-    players: {
-        online: 0,
-        max: 100
-    },
+    players: { online: 0, max: 100 },
     motd: "PSMC - Prosto Server Minecraft",
     version: SERVER_CONFIG.version,
     ping: 0,
@@ -41,59 +36,24 @@ let serverState = {
     errorCount: 0
 };
 
-// DOM элементы
 const elements = {};
 
-// Инициализация
 document.addEventListener('DOMContentLoaded', function() {
     console.log("PSMC сайт запущен - режим реальной проверки");
-    
-    // Инициализация элементов
     initElements();
-    
-    // Установка статических данных
     setStaticData();
-    
-    // Назначение обработчиков
     setupEventListeners();
-    
-    // Инициализация информационных вкладок
     setupInfoTabs();
-    
-    // Первая проверка сервера
+
+    // Переключение на вкладку Java по умолчанию
+    switchTab('java');
+
     checkServerStatus(true);
-    
-    // Автоматическое обновление каждые 30 секунд
     setInterval(() => checkServerStatus(false), 30000);
-    
-    // Обновление времени
     setInterval(updateTimeDisplay, 60000);
 });
 
-// Функция для переключения информационных вкладок (Информация, Правила, Плагины)
-function setupInfoTabs() {
-    const infoTabBtns = document.querySelectorAll('.info-tab-btn');
-    const infoTabContents = document.querySelectorAll('.info-tab-content');
-    if (!infoTabBtns.length) return;
-    
-    infoTabBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const tabId = btn.getAttribute('data-info-tab');
-            infoTabBtns.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            infoTabContents.forEach(content => {
-                content.classList.remove('active');
-                if (content.id === `info-${tabId}`) {
-                    content.classList.add('active');
-                }
-            });
-        });
-    });
-}
-
-// Инициализация элементов
 function initElements() {
-    // Основные элементы
     elements.statusText = document.getElementById('statusText');
     elements.statusIndicator = document.getElementById('statusIndicator');
     elements.countNumber = document.querySelector('.count-number');
@@ -103,24 +63,16 @@ function initElements() {
     elements.copyIpBtn = document.getElementById('copyIpBtn');
     elements.serverVersion = document.getElementById('serverVersion');
     elements.statusSub = document.querySelector('.status-sub');
-    
-    // Вкладки
     elements.tabBtns = document.querySelectorAll('.tab-btn');
     elements.tabContents = document.querySelectorAll('.tab-content');
-    
-    // Быстрое подключение
     elements.quickJava = document.getElementById('quickJava');
     elements.quickBedrock = document.getElementById('quickBedrock');
 }
 
-// Установка статических данных
 function setStaticData() {
-    // Устанавливаем версию
     if (elements.serverVersion) {
         elements.serverVersion.textContent = SERVER_CONFIG.version;
     }
-    
-    // Обновляем год
     document.querySelectorAll('.footer-bottom p, .info-value').forEach(el => {
         if (el.textContent.includes('2026')) {
             el.textContent = SERVER_CONFIG.currentYear;
@@ -128,35 +80,22 @@ function setStaticData() {
     });
 }
 
-// Основная функция проверки сервера
+// ===================== СТАТУС СЕРВЕРА (без изменений) =====================
 async function checkServerStatus(isInitial = false, notification = false) {
     if (serverState.isChecking) return;
-    
     serverState.isChecking = true;
     const startTime = Date.now();
-    
-    // Устанавливаем состояние загрузки
     setStatus('loading', 'Проверяем сервер...');
     if (elements.refreshBtn) {
         elements.refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Проверка...';
         elements.refreshBtn.disabled = true;
     }
-    
     try {
-        // Пробуем все API по очереди
         const serverData = await tryAllApis();
-        
-        // Обновляем состояние сервера
         updateServerState(serverData);
-        
-        // Обновляем интерфейс
         updateInterface();
-        
-        // Обновляем время
         serverState.lastUpdate = new Date();
         updateTimeDisplay();
-        
-        // Показываем уведомление только если это не первая загрузка
         if (!isInitial && notification) {
             if (serverState.online) {
                 showNotification(`Сервер онлайн Игроков: ${serverState.players.online}`, 'success');
@@ -164,41 +103,27 @@ async function checkServerStatus(isInitial = false, notification = false) {
                 showNotification('Сервер оффлайн', 'info');
             }
         }
-        
-        // Сбрасываем счетчик ошибок при успехе
         serverState.errorCount = 0;
-        
     } catch (error) {
         console.error('Ошибка проверки сервера:', error);
-        
-        // Увеличиваем счетчик ошибок
         serverState.errorCount++;
-        
-        // Если много ошибок подряд, показываем что сервер выключен
         if (serverState.errorCount >= 3) {
             serverState.online = false;
             serverState.players.online = 0;
             serverState.motd = "Сервер не отвечает";
             serverState.ping = 0;
-            
             if (elements.statusSub) {
                 elements.statusSub.textContent = "Сервер выключен или недоступен";
             }
         }
-        
         updateInterface();
-        
         if (!isInitial) {
             showNotification('Не удалось проверить сервер', 'error');
         }
-        
     } finally {
         const endTime = Date.now();
-        const duration = endTime - startTime;
-        console.log(`Проверка заняла: ${duration}ms`);
-        
+        console.log(`Проверка заняла: ${endTime - startTime}ms`);
         serverState.isChecking = false;
-        
         if (elements.refreshBtn) {
             elements.refreshBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Проверить сейчас';
             elements.refreshBtn.disabled = false;
@@ -206,132 +131,87 @@ async function checkServerStatus(isInitial = false, notification = false) {
     }
 }
 
-// Пробуем все доступные API
 async function tryAllApis() {
     const javaAddress = `${SERVER_CONFIG.ip}:${SERVER_CONFIG.javaPort}`;
-    
-    // Создаем массив промисов для всех API
     const promises = SERVER_CONFIG.apis.map(async (api) => {
         try {
-            let apiUrl, options;
-            
-            // Формируем URL в зависимости от API
+            let apiUrl;
             switch(api.name) {
-                case "MCSRVSTAT":
-                    apiUrl = `${api.url}${SERVER_CONFIG.ip}:${SERVER_CONFIG.javaPort}`;
-                    break;
-                case "MINETOOLS":
-                    apiUrl = `${api.url}${SERVER_CONFIG.ip}/${SERVER_CONFIG.javaPort}`;
-                    break;
+                // case "MCSRVSTAT":
+                //     apiUrl = `${api.url}${SERVER_CONFIG.ip}:${SERVER_CONFIG.javaPort}`;
+                //     break;
+                // case "MINETOOLS":
+                //     apiUrl = `${api.url}${SERVER_CONFIG.ip}/${SERVER_CONFIG.javaPort}`;
+                //     break;
                 case "MCAPI":
                     apiUrl = `${api.url}${SERVER_CONFIG.ip}:${SERVER_CONFIG.javaPort}`;
                     break;
                 default:
                     apiUrl = `${api.url}${javaAddress}`;
             }
-            
             console.log(`Пробуем API: ${api.name} - ${apiUrl}`);
-            
-            // Создаем AbortController для таймаута
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), api.timeout);
-            
             const response = await fetch(apiUrl, {
                 signal: controller.signal,
-                headers: {
-                    'Accept': 'application/json',
-                    'User-Agent': 'PSMC-Server-Checker/1.0'
-                }
+                headers: { 'Accept': 'application/json', 'User-Agent': 'PSMC-Server-Checker/1.0' }
             });
-            
             clearTimeout(timeoutId);
-            
             if (!response.ok) {
                 throw new Error(`API ${api.name} вернул статус ${response.status}`);
             }
-            
             const data = await response.json();
-            
-            // Обрабатываем данные в зависимости от API
             return processApiData(data, api.name);
-            
         } catch (error) {
             console.warn(`API ${api.name} не сработало:`, error.message);
             throw error;
         }
     });
-    
-    // Ждем первый успешный ответ
     return await Promise.any(promises);
 }
 
-// Обработка данных от разных API
 function processApiData(data, apiName) {
     console.log(`Данные от ${apiName}:`, data);
-    
     switch(apiName) {
-        case "MCSRVSTAT":
-            return {
-                online: data.online || false,
-                players: {
-                    online: data.players?.online || 0,
-                    max: data.players?.max || 100
-                },
-                motd: data.motd?.clean || "PSMC Server",
-                version: data.version || SERVER_CONFIG.version,
-                ping: data.debug?.ping ? true : 0
-            };
-            
-        case "MINETOOLS":
-            return {
-                online: !data.error || false,
-                players: {
-                    online: data.players?.online || 0,
-                    max: data.players?.max || 100
-                },
-                motd: data.description || "PSMC Server",
-                version: data.version?.name || SERVER_CONFIG.version,
-                ping: data.latency || 0
-            };
-            
+        // case "MCSRVSTAT":
+        //     return {
+        //         online: data.online || false,
+        //         players: { online: data.players?.online || 0, max: data.players?.max || 100 },
+        //         motd: data.motd?.clean || "PSMC Server",
+        //         version: data.version || SERVER_CONFIG.version,
+        //         ping: data.debug?.ping ? true : 0
+        //     };
+        // case "MINETOOLS":
+        //     return {
+        //         online: !data.error || false,
+        //         players: { online: data.players?.online || 0, max: data.players?.max || 100 },
+        //         motd: data.description || "PSMC Server",
+        //         version: data.version?.name || SERVER_CONFIG.version,
+        //         ping: data.latency || 0
+        //     };
         case "MCAPI":
             return {
                 online: data.online || false,
-                players: {
-                    online: data.players?.online || 0,
-                    max: data.players?.max || 100
-                },
+                players: { online: data.players?.online || 0, max: data.players?.max || 100 },
                 motd: data.motd?.clean || "PSMC Server",
                 version: data.version?.name_raw || SERVER_CONFIG.version,
                 ping: data.round_trip_latency_ms || 0
             };
-            
         default:
-            return {
-                online: false,
-                players: { online: 0, max: 100 },
-                motd: "PSMC Server",
-                version: SERVER_CONFIG.version,
-                ping: 0
-            };
+            return { online: false, players: { online: 0, max: 100 }, motd: "PSMC Server", version: SERVER_CONFIG.version, ping: 0 };
     }
 }
 
-// Обновление состояния сервера
 function updateServerState(data) {
     serverState.online = data.online;
     serverState.players = data.players;
     serverState.motd = data.motd;
     serverState.version = data.version || SERVER_CONFIG.version;
     serverState.ping = data.ping || 0;
-    
-    // Сохраняем время обновления
     serverState.lastUpdate = new Date();
 }
 
-// Обновление интерфейса
 function updateInterface() {
-    // Статус сервера
     if (serverState.online) {
         setStatus('online', 'Сервер онлайн ✓');
         if (elements.statusText) {
@@ -349,13 +229,9 @@ function updateInterface() {
             elements.statusSub.textContent = 'Попробуйте подключиться позже';
         }
     }
-    
-    // Количество игроков
     if (elements.countNumber) {
         elements.countNumber.textContent = serverState.online ? serverState.players.online : '0';
     }
-    
-    // Пинг
     if (elements.serverPing) {
         if (serverState.online && serverState.ping > 0) {
             elements.serverPing.textContent = `${Math.round(serverState.ping)} мс`;
@@ -363,29 +239,22 @@ function updateInterface() {
             elements.serverPing.textContent = '—';
         }
     }
-    
-    // Добавляем/обновляем информационное сообщение
     updateStatusMessage();
 }
 
-// Установка статуса
 function setStatus(type, message) {
     if (!elements.statusIndicator) return;
-    
     elements.statusIndicator.className = 'status-indicator';
     elements.statusIndicator.classList.add(type);
 }
 
-// Обновление сообщения о статусе
 function updateStatusMessage() {
     let messageContainer = document.querySelector('.server-status-message');
-    
     if (!messageContainer) {
         messageContainer = document.createElement('div');
         messageContainer.className = 'server-status-message';
         document.querySelector('.status-card').appendChild(messageContainer);
     }
-    
     if (serverState.online) {
         messageContainer.innerHTML = `
             <div class="status-message-content">
@@ -415,13 +284,10 @@ function updateStatusMessage() {
     }
 }
 
-// Обновление времени
 function updateTimeDisplay() {
     if (!elements.lastUpdate || !serverState.lastUpdate) return;
-    
     const now = new Date();
     const diff = Math.floor((now - serverState.lastUpdate) / 1000);
-    
     if (diff < 60) {
         elements.lastUpdate.textContent = `${diff} секунд назад`;
     } else if (diff < 3600) {
@@ -433,7 +299,6 @@ function updateTimeDisplay() {
     }
 }
 
-// Вспомогательные функции
 function getRussianMinutes(minutes) {
     if (minutes === 1) return 'минуту';
     if (minutes >= 2 && minutes <= 4) return 'минуты';
@@ -446,34 +311,27 @@ function getRussianHours(hours) {
     return 'часов';
 }
 
-// Настройка обработчиков событий
 function setupEventListeners() {
-    // Кнопка обновления
     if (elements.refreshBtn) {
         elements.refreshBtn.addEventListener('click', () => checkServerStatus(false, true));
     }
-    
-    // Копирование IP
     if (elements.copyIpBtn) {
         elements.copyIpBtn.addEventListener('click', () => {
             copyToClipboard(`${SERVER_CONFIG.ip}:${SERVER_CONFIG.javaPort}`);
         });
     }
-    
-    // Вкладки
-    elements.tabBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const tab = btn.dataset.tab;
-            switchTab(tab);
+    if (elements.tabBtns) {
+        elements.tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tab = btn.dataset.tab;
+                switchTab(tab);
+            });
         });
-    });
-    
-    // Быстрое копирование (Java и Bedrock с проверкой)
+    }
     const javaCopyButtons = [
         elements.quickJava,
         ...document.querySelectorAll('.copy-small[data-address]')
     ].filter(Boolean);
-    
     javaCopyButtons.forEach(btn => {
         btn.addEventListener('click', function(e) {
             let text = '';
@@ -485,16 +343,12 @@ function setupEventListeners() {
             if (text) copyToClipboard(text);
         });
     });
-    
-    // Bedrock кнопки – либо отключены, либо показывают предупреждение
     const bedrockButtons = [
         elements.quickBedrock,
         document.querySelector('.copy-full[data-bedrock]')
     ].filter(Boolean);
-    
     bedrockButtons.forEach(btn => {
         btn.addEventListener('click', function(e) {
-            // Если кнопка disabled или это bedrock-кнопка
             if (this.disabled || this.classList.contains('bedrock-btn') || this.dataset.bedrock) {
                 e.preventDefault();
                 showNotification('Bedrock Edition временно недоступна', 'error');
@@ -502,8 +356,6 @@ function setupEventListeners() {
             }
         });
     });
-    
-    // Также блокируем любые попытки скопировать bedrock адрес через другие элементы
     document.querySelectorAll('[data-bedrock]').forEach(btn => {
         btn.addEventListener('click', (e) => {
             e.preventDefault();
@@ -512,15 +364,20 @@ function setupEventListeners() {
     });
 }
 
-// Переключение вкладок
+// ===================== ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК =====================
 function switchTab(tabName) {
+    // Проверяем, что элементы существуют
+    if (!elements.tabBtns || !elements.tabContents) {
+        console.warn('Элементы вкладок ещё не загружены');
+        return;
+    }
     elements.tabBtns.forEach(btn => btn.classList.remove('active'));
     elements.tabContents.forEach(content => {
         content.classList.remove('active');
         content.style.display = 'none';
     });
-    
-    document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+    const activeBtn = document.querySelector(`[data-tab="${tabName}"]`);
+    if (activeBtn) activeBtn.classList.add('active');
     const activeTab = document.getElementById(`${tabName}Tab`);
     if (activeTab) {
         activeTab.style.display = 'block';
@@ -528,18 +385,15 @@ function switchTab(tabName) {
     }
 }
 
-// Копирование в буфер обмена
 function copyToClipboard(text) {
     navigator.clipboard.writeText(text)
         .then(() => {
             showNotification(`Скопировано: ${text}`, 'success');
-            
             const btn = event?.target.closest('button');
             if (btn && !btn.disabled) {
                 const original = btn.innerHTML;
                 btn.innerHTML = '<i class="fas fa-check"></i> Скопировано!';
                 btn.style.background = 'linear-gradient(135deg, #4CAF50, #2E7D32)';
-                
                 setTimeout(() => {
                     btn.innerHTML = original;
                     btn.style.background = '';
@@ -552,49 +406,207 @@ function copyToClipboard(text) {
         });
 }
 
-// Показ уведомлений
 function showNotification(message, type = 'info') {
     const oldNotification = document.querySelector('.notification');
     if (oldNotification) oldNotification.remove();
-    
     const notification = document.createElement('div');
     notification.className = `notification ${type}`;
     notification.innerHTML = `
         <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
         ${message}
     `;
-    
     document.body.appendChild(notification);
-    
     setTimeout(() => {
         if (notification.parentNode) notification.remove();
     }, 3000);
 }
 
-// Экспорт функций для отладки
-window.PSMC = {
-    checkStatus: () => checkServerStatus(false),
-    getState: () => serverState,
-    getConfig: () => SERVER_CONFIG,
-    simulateOnline: (players = 5) => {
-        serverState.online = true;
-        serverState.players.online = players;
-        serverState.motd = "PSMC - Prosto Server Minecraft";
-        serverState.ping = 35;
-        serverState.lastUpdate = new Date();
-        updateInterface();
-        showNotification(`Симуляция: сервер онлайн (${players} игроков)`, 'info');
-    },
-    simulateOffline: () => {
-        serverState.online = false;
-        serverState.players.online = 0;
-        serverState.motd = "Сервер выключен";
-        serverState.ping = 0;
-        serverState.lastUpdate = new Date();
-        updateInterface();
-        showNotification('Симуляция: сервер оффлайн', 'info');
+// ===================== ИНФОРМАЦИОННЫЕ ВКЛАДКИ =====================
+function setupInfoTabs() {
+    const infoTabBtns = document.querySelectorAll('.info-tab-btn');
+    const infoTabContents = document.querySelectorAll('.info-tab-content');
+    if (!infoTabBtns.length) return;
+    infoTabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const tabId = btn.getAttribute('data-info-tab');
+            infoTabBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            infoTabContents.forEach(content => {
+                content.classList.remove('active');
+                if (content.id === `info-${tabId}`) {
+                    content.classList.add('active');
+                }
+            });
+            // Если это вкладка магазина, загружаем товары
+            if (tabId === 'shop') {
+                setTimeout(loadShopProducts, 200);
+            }
+        });
+    });
+}
+
+// ===================== МАГАЗИН (EasyDonate API) =====================
+const SHOP_CONFIG = {
+    apiKey: "90e6baaf7c43d441540e966a5d52c7c0",
+    shopId: "155890",
+    serverId: 139070,
+    shopUrl: "https://easydonate.ru/shop/155890",
+    apiBase: "https://easydonate.ru/api/v3"
+};
+
+async function loadShopProducts() {
+    const container = document.getElementById('shopProducts');
+    if (!container) return;
+    if (container.dataset.loaded === 'true') return;
+
+    container.innerHTML = `
+        <div style="text-align:center; padding:40px;">
+            <i class="fas fa-spinner fa-spin" style="font-size:2rem; color:var(--primary);"></i>
+            <p style="color:var(--muted);">Загрузка товаров...</p>
+        </div>
+    `;
+
+    try {
+        const response = await fetch(`${SHOP_CONFIG.apiBase}/shop/products`, {
+            method: 'GET',
+            headers: {
+                'Shop-Key': SHOP_CONFIG.apiKey,
+                'User-Agent': 'PSMC-Site/1.0',
+                'Accept': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status} - ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        console.log('Товары от EasyDonate:', data);
+
+        // Правильная структура: data.response содержит массив
+        const products = data.response || data.data || data;
+        if (!Array.isArray(products) || products.length === 0) {
+            container.innerHTML = `<div class="shop-error"><i class="fas fa-info-circle"></i> Товары не найдены.</div>`;
+            return;
+        }
+
+        renderProducts(products);
+        container.dataset.loaded = 'true';
+
+    } catch (error) {
+        console.error('Ошибка загрузки товаров:', error);
+        container.innerHTML = `
+            <div class="shop-error">
+                <i class="fas fa-exclamation-triangle"></i>
+                Не удалось загрузить товары. Пожалуйста, обновите страницу позже.
+                <br><small style="color:var(--muted);">${error.message}</small>
+                <br><small style="color:var(--muted);">Попробуйте открыть магазин напрямую: <a href="${SHOP_CONFIG.shopUrl}" target="_blank" style="color:var(--primary);">${SHOP_CONFIG.shopUrl}</a></small>
+            </div>
+        `;
+    }
+}
+
+function renderProducts(products) {
+    const container = document.getElementById('shopProducts');
+    if (!container) return;
+    container.innerHTML = '';
+    container.className = 'shop-grid';
+
+    products.forEach(product => {
+        const card = document.createElement('div');
+        card.className = 'product-card';
+        
+        const iconHtml = product.icon 
+            ? `<img src="${product.icon}" alt="${product.name}" style="width:64px;height:64px;">` 
+            : `<i class="fas fa-gem product-icon"></i>`;
+        
+        card.innerHTML = `
+            ${iconHtml}
+            <h4>${product.name}</h4>
+            <p class="product-desc">${product.description || 'Без описания'}</p>
+            <span class="product-price">${product.price} ₽</span>
+            <button class="buy-btn" data-product-id="${product.id}">
+                <i class="fas fa-shopping-cart"></i> Купить
+            </button>
+        `;
+
+        container.appendChild(card);
+    });
+
+    // Обработчик для всех кнопок "Купить"
+    document.querySelectorAll('.buy-btn').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const productId = this.dataset.productId;
+            await createPayment(productId);
+        });
+    });
+}
+
+async function createPayment(productId) {
+    const container = document.getElementById('shopProducts');
+    
+    // Удаляем предыдущий блок загрузки, если есть
+    const oldLoading = container.querySelector('.shop-loading');
+    if (oldLoading) oldLoading.remove();
+
+    // Создаём новый блок с рамкой и текстом "Обработка..."
+    const loadingMsg = document.createElement('div');
+    loadingMsg.className = 'shop-loading';
+    loadingMsg.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Обработка...`;
+    container.prepend(loadingMsg);
+
+    try {
+        const response = await fetch(`${SHOP_CONFIG.apiBase}/shop/payment/create?customer=${encodeURIComponent('Игрок')}&server_id=${SHOP_CONFIG.serverId}&products={"${productId}":1}`, {
+            method: 'GET',
+            headers: {
+                'Shop-Key': SHOP_CONFIG.apiKey,
+                'User-Agent': 'PSMC-Site/1.0',
+                'Accept': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`Ошибка: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('Платёжная ссылка:', data);
+
+        if (data.success && data.response?.url) {
+            window.location.href = data.response.url;
+        } else {
+            throw new Error(data.response || 'Не удалось создать платёж');
+        }
+
+    } catch (error) {
+        console.error('Ошибка создания платежа:', error);
+        alert(`Не удалось создать платёж: ${error.message}`);
+    } finally {
+        // Удаляем блок загрузки после завершения (успех или ошибка)
+        const loading = container.querySelector('.shop-loading');
+        if (loading) loading.remove();
+    }
+}
+
+// Подключаем загрузку магазина при активации вкладки
+const originalSetupInfoTabs = setupInfoTabs;
+setupInfoTabs = function() {
+    originalSetupInfoTabs();
+    const shopBtn = document.querySelector('[data-info-tab="shop"]');
+    if (shopBtn) {
+        shopBtn.addEventListener('click', function() {
+            setTimeout(loadShopProducts, 200);
+        });
+    }
+    if (document.querySelector('.info-tab-btn[data-info-tab="shop"].active')) {
+        setTimeout(loadShopProducts, 300);
     }
 };
 
-// Инициализация вкладок
-switchTab('java');
+// Экспорт для отладки (теперь window.PSMC точно существует)
+window.PSMC = window.PSMC || {};
+window.PSMC.shop = {
+    load: loadShopProducts,
+    config: SHOP_CONFIG
+};
+
