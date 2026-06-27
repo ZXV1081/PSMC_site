@@ -1,4 +1,6 @@
-// Конфигурация сервера PSMC
+// ============================================================
+//  Конфигурация сервера PSMC
+// ============================================================
 const SERVER_CONFIG = {
     ip: "psmc.minerent.io",
     javaPort: "25565",
@@ -7,7 +9,9 @@ const SERVER_CONFIG = {
     currentYear: 2026
 };
 
-// Состояние сервера
+// ============================================================
+//  Состояние сервера
+// ============================================================
 let serverState = {
     online: false,
     players: { online: 0, max: 100 },
@@ -19,10 +23,11 @@ let serverState = {
     errorCount: 0
 };
 
-// DOM элементы
 const elements = {};
 
-// ========== ИНИЦИАЛИЗАЦИЯ ==========
+// ============================================================
+//  ИНИЦИАЛИЗАЦИЯ
+// ============================================================
 document.addEventListener('DOMContentLoaded', function() {
     console.log("PSMC сайт запущен - режим реальной проверки");
     initElements();
@@ -62,7 +67,9 @@ function setStaticData() {
     });
 }
 
-// ========== СТАТУС СЕРВЕРА (через Cloudflare Worker) ==========
+// ============================================================
+//  СТАТУС СЕРВЕРА (MCSRVSTAT + резервные API)
+// ============================================================
 async function checkServerStatus(isInitial = false, notification = false) {
     if (serverState.isChecking) return;
     serverState.isChecking = true;
@@ -114,33 +121,56 @@ async function checkServerStatus(isInitial = false, notification = false) {
 }
 
 async function fetchServerStatus() {
-    // Используем Cloudflare Worker для запроса статуса
-    const target = `${SERVER_CONFIG.ip}:${SERVER_CONFIG.javaPort}`;
-    const workerUrl = `https://psmc-proxy.s-v-p-1251.workers.dev/status?target=${encodeURIComponent(target)}`;
-    const response = await fetch(workerUrl, {
-        headers: { 'Accept': 'application/json' }
-    });
-    if (!response.ok) {
-        throw new Error(`Worker вернул статус ${response.status}`);
-    }
-    const data = await response.json();
-    // Приводим к формату, который понимает processApiData
-    return processApiData(data, 'MCAPI');
-}
+    const address = `${SERVER_CONFIG.ip}:${SERVER_CONFIG.javaPort}`;
 
-function processApiData(data, apiName) {
-    console.log(`Данные от ${apiName}:`, data);
-    // Ожидаем структуру от mcstatus.io
-    return {
-        online: data.online || false,
-        players: {
-            online: data.players?.online || 0,
-            max: data.players?.max || 100
-        },
-        motd: data.motd?.clean || "PSMC Server",
-        version: data.version?.name_raw || SERVER_CONFIG.version,
-        ping: data.round_trip_latency_ms || 0
-    };
+    // Список API в порядке приоритета
+    const apis = [
+        {
+            name: 'mcapi.us',
+            url: `https://mcapi.us/server/status?ip=${SERVER_CONFIG.ip}&port=${SERVER_CONFIG.javaPort}`,
+            parser: (data) => ({
+                online: data.online || false,
+                players: {
+                    online: data.players?.now || 0,
+                    max: data.players?.max || 100
+                },
+                motd: data.motd || 'PSMC Server',
+                version: data.server?.version || SERVER_CONFIG.version,
+                ping: 0
+            })
+        }
+    ];
+
+    // Пробуем каждый API по порядку
+    for (const api of apis) {
+        try {
+            console.log(`Пробуем API: ${api.name} - ${api.url}`);
+            const response = await fetch(api.url, {
+                headers: { 'Accept': 'application/json' }
+            });
+
+            if (!response.ok) {
+                console.warn(`API ${api.name} вернул статус ${response.status}`);
+                continue;
+            }
+
+            const data = await response.json();
+            console.log(`Данные от ${api.name}:`, data);
+
+            if (data.online === undefined) {
+                console.warn(`API ${api.name} не вернул поле online`);
+                continue;
+            }
+
+            return api.parser(data);
+
+        } catch (error) {
+            console.warn(`Ошибка при запросе к ${api.name}:`, error.message);
+            // продолжаем со следующим API
+        }
+    }
+
+    throw new Error('Не удалось проверить статус сервера (все API недоступны)');
 }
 
 function updateServerState(data) {
@@ -251,7 +281,9 @@ function getRussianHours(hours) {
     return 'часов';
 }
 
-// ========== ОБРАБОТЧИКИ ==========
+// ============================================================
+//  ОБРАБОТЧИКИ СОБЫТИЙ
+// ============================================================
 function setupEventListeners() {
     if (elements.refreshBtn) {
         elements.refreshBtn.addEventListener('click', () => checkServerStatus(false, true));
@@ -360,7 +392,9 @@ function showNotification(message, type = 'info') {
     }, 3000);
 }
 
-// ========== ИНФОРМАЦИОННЫЕ ВКЛАДКИ ==========
+// ============================================================
+//  ИНФОРМАЦИОННЫЕ ВКЛАДКИ
+// ============================================================
 function setupInfoTabs() {
     const infoTabBtns = document.querySelectorAll('.info-tab-btn');
     const infoTabContents = document.querySelectorAll('.info-tab-content');
@@ -383,19 +417,20 @@ function setupInfoTabs() {
     });
 }
 
-// ========== МАГАЗИН (ЧЕРЕЗ CLOUDFLARE WORKER) ==========
+// ============================================================
+//  МАГАЗИН (через Cloudflare Worker)
+// ============================================================
 const SHOP_CONFIG = {
-    apiKey: "90e6baaf7c43d441540e966a5d52c7c0", // не используется, но оставлено для совместимости
+    apiKey: "90e6baaf7c43d441540e966a5d52c7c0",
     shopId: "155890",
     serverId: 139070,
     shopUrl: "https://psmc.easydonate.ru",
-    apiBase: "https://psmc-proxy.s-v-p-1251.workers.dev" // Worker URL
+    apiBase: "https://psmc-proxy.s-v-p-1251.workers.dev"  // Ваш Worker
 };
 
 async function loadShopProducts() {
     const container = document.getElementById('shopProducts');
     if (!container) return;
-    // Если уже загружены, не перезагружаем
     if (container.dataset.loaded === 'true') return;
 
     container.innerHTML = `
@@ -428,23 +463,18 @@ async function loadShopProducts() {
 
     } catch (error) {
         console.error('Ошибка загрузки товаров:', error);
-        // Показываем предупреждение вместо ошибки
         container.innerHTML = `
             <div style="background: rgba(255, 166, 38, 0.15); border: 2px solid var(--warning); border-radius: 12px; padding: 25px; text-align: center;">
                 <i class="fas fa-exclamation-triangle" style="color: var(--warning); font-size: 2.5rem; display: block; margin-bottom: 15px;"></i>
                 <h4 style="color: var(--warning); margin-bottom: 10px;">Магазин временно недоступен</h4>
                 <p style="color: var(--light); max-width: 500px; margin: 0 auto;">
                     Для доступа к магазину <strong>включите VPN</strong> и обновите страницу.<br>
-                    Или перейдите в магазин напрямую:
                 </p>
-                <a href="${SHOP_CONFIG.shopUrl}" target="_blank" style="display: inline-block; margin-top: 15px; color: var(--primary); text-decoration: underline;">${SHOP_CONFIG.shopUrl}</a>
-                <br>
                 <button onclick="loadShopProducts()" style="margin-top: 20px; padding: 12px 25px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem;">
                     <i class="fas fa-sync-alt"></i> Попробовать снова
                 </button>
             </div>
         `;
-        // Сбрасываем флаг, чтобы можно было повторить попытку
         container.dataset.loaded = 'false';
     }
 }
@@ -524,7 +554,9 @@ async function createPayment(productId) {
     }
 }
 
-// ========== АВТОЗАГРУЗКА МАГАЗИНА ==========
+// ============================================================
+//  АВТОЗАГРУЗКА МАГАЗИНА
+// ============================================================
 const originalSetupInfoTabs = setupInfoTabs;
 setupInfoTabs = function() {
     originalSetupInfoTabs();
@@ -539,7 +571,9 @@ setupInfoTabs = function() {
     }
 };
 
-// ========== ДЛЯ ОТЛАДКИ ==========
+// ============================================================
+//  ДЛЯ ОТЛАДКИ
+// ============================================================
 window.PSMC = window.PSMC || {};
 window.PSMC.shop = {
     load: loadShopProducts,
