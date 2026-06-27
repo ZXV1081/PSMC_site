@@ -4,26 +4,10 @@ const SERVER_CONFIG = {
     javaPort: "25565",
     bedrockPort: "19132",
     version: "1.21.11",
-    currentYear: 2026,
-    apis: [
-        // {
-        //     name: "MCSRVSTAT",
-        //     url: "https://api.mcsrvstat.us/2/",
-        //     timeout: 5000
-        // },
-        // {
-        //     name: "MINETOOLS",
-        //     url: "https://api.minetools.eu/ping/",
-        //     timeout: 5000
-        // },
-        {
-            name: "MCAPI",
-            url: "https://api.mcstatus.io/v2/status/java/",
-            timeout: 5000
-        }
-    ]
+    currentYear: 2026
 };
 
+// Состояние сервера
 let serverState = {
     online: false,
     players: { online: 0, max: 100 },
@@ -32,22 +16,20 @@ let serverState = {
     ping: 0,
     lastUpdate: null,
     isChecking: false,
-    lastSuccessApi: null,
     errorCount: 0
 };
 
+// DOM элементы
 const elements = {};
 
+// ========== ИНИЦИАЛИЗАЦИЯ ==========
 document.addEventListener('DOMContentLoaded', function() {
     console.log("PSMC сайт запущен - режим реальной проверки");
     initElements();
     setStaticData();
     setupEventListeners();
     setupInfoTabs();
-
-    // Переключение на вкладку Java по умолчанию
     switchTab('java');
-
     checkServerStatus(true);
     setInterval(() => checkServerStatus(false), 30000);
     setInterval(updateTimeDisplay, 60000);
@@ -80,7 +62,7 @@ function setStaticData() {
     });
 }
 
-// ===================== СТАТУС СЕРВЕРА (без изменений) =====================
+// ========== СТАТУС СЕРВЕРА (через Cloudflare Worker) ==========
 async function checkServerStatus(isInitial = false, notification = false) {
     if (serverState.isChecking) return;
     serverState.isChecking = true;
@@ -91,7 +73,7 @@ async function checkServerStatus(isInitial = false, notification = false) {
         elements.refreshBtn.disabled = true;
     }
     try {
-        const serverData = await tryAllApis();
+        const serverData = await fetchServerStatus();
         updateServerState(serverData);
         updateInterface();
         serverState.lastUpdate = new Date();
@@ -131,75 +113,34 @@ async function checkServerStatus(isInitial = false, notification = false) {
     }
 }
 
-async function tryAllApis() {
-    const javaAddress = `${SERVER_CONFIG.ip}:${SERVER_CONFIG.javaPort}`;
-    const promises = SERVER_CONFIG.apis.map(async (api) => {
-        try {
-            let apiUrl;
-            switch(api.name) {
-                // case "MCSRVSTAT":
-                //     apiUrl = `${api.url}${SERVER_CONFIG.ip}:${SERVER_CONFIG.javaPort}`;
-                //     break;
-                // case "MINETOOLS":
-                //     apiUrl = `${api.url}${SERVER_CONFIG.ip}/${SERVER_CONFIG.javaPort}`;
-                //     break;
-                case "MCAPI":
-                    apiUrl = `${api.url}${SERVER_CONFIG.ip}:${SERVER_CONFIG.javaPort}`;
-                    break;
-                default:
-                    apiUrl = `${api.url}${javaAddress}`;
-            }
-            console.log(`Пробуем API: ${api.name} - ${apiUrl}`);
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), api.timeout);
-            const response = await fetch(apiUrl, {
-                signal: controller.signal,
-                headers: { 'Accept': 'application/json', 'User-Agent': 'PSMC-Server-Checker/1.0' }
-            });
-            clearTimeout(timeoutId);
-            if (!response.ok) {
-                throw new Error(`API ${api.name} вернул статус ${response.status}`);
-            }
-            const data = await response.json();
-            return processApiData(data, api.name);
-        } catch (error) {
-            console.warn(`API ${api.name} не сработало:`, error.message);
-            throw error;
-        }
+async function fetchServerStatus() {
+    // Используем Cloudflare Worker для запроса статуса
+    const target = `${SERVER_CONFIG.ip}:${SERVER_CONFIG.javaPort}`;
+    const workerUrl = `https://psmc-proxy.s-v-p-1251.workers.dev/status?target=${encodeURIComponent(target)}`;
+    const response = await fetch(workerUrl, {
+        headers: { 'Accept': 'application/json' }
     });
-    return await Promise.any(promises);
+    if (!response.ok) {
+        throw new Error(`Worker вернул статус ${response.status}`);
+    }
+    const data = await response.json();
+    // Приводим к формату, который понимает processApiData
+    return processApiData(data, 'MCAPI');
 }
 
 function processApiData(data, apiName) {
     console.log(`Данные от ${apiName}:`, data);
-    switch(apiName) {
-        // case "MCSRVSTAT":
-        //     return {
-        //         online: data.online || false,
-        //         players: { online: data.players?.online || 0, max: data.players?.max || 100 },
-        //         motd: data.motd?.clean || "PSMC Server",
-        //         version: data.version || SERVER_CONFIG.version,
-        //         ping: data.debug?.ping ? true : 0
-        //     };
-        // case "MINETOOLS":
-        //     return {
-        //         online: !data.error || false,
-        //         players: { online: data.players?.online || 0, max: data.players?.max || 100 },
-        //         motd: data.description || "PSMC Server",
-        //         version: data.version?.name || SERVER_CONFIG.version,
-        //         ping: data.latency || 0
-        //     };
-        case "MCAPI":
-            return {
-                online: data.online || false,
-                players: { online: data.players?.online || 0, max: data.players?.max || 100 },
-                motd: data.motd?.clean || "PSMC Server",
-                version: data.version?.name_raw || SERVER_CONFIG.version,
-                ping: data.round_trip_latency_ms || 0
-            };
-        default:
-            return { online: false, players: { online: 0, max: 100 }, motd: "PSMC Server", version: SERVER_CONFIG.version, ping: 0 };
-    }
+    // Ожидаем структуру от mcstatus.io
+    return {
+        online: data.online || false,
+        players: {
+            online: data.players?.online || 0,
+            max: data.players?.max || 100
+        },
+        motd: data.motd?.clean || "PSMC Server",
+        version: data.version?.name_raw || SERVER_CONFIG.version,
+        ping: data.round_trip_latency_ms || 0
+    };
 }
 
 function updateServerState(data) {
@@ -304,13 +245,13 @@ function getRussianMinutes(minutes) {
     if (minutes >= 2 && minutes <= 4) return 'минуты';
     return 'минут';
 }
-
 function getRussianHours(hours) {
     if (hours === 1) return 'час';
     if (hours >= 2 && hours <= 4) return 'часа';
     return 'часов';
 }
 
+// ========== ОБРАБОТЧИКИ ==========
 function setupEventListeners() {
     if (elements.refreshBtn) {
         elements.refreshBtn.addEventListener('click', () => checkServerStatus(false, true));
@@ -364,9 +305,7 @@ function setupEventListeners() {
     });
 }
 
-// ===================== ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК =====================
 function switchTab(tabName) {
-    // Проверяем, что элементы существуют
     if (!elements.tabBtns || !elements.tabContents) {
         console.warn('Элементы вкладок ещё не загружены');
         return;
@@ -421,7 +360,7 @@ function showNotification(message, type = 'info') {
     }, 3000);
 }
 
-// ===================== ИНФОРМАЦИОННЫЕ ВКЛАДКИ =====================
+// ========== ИНФОРМАЦИОННЫЕ ВКЛАДКИ ==========
 function setupInfoTabs() {
     const infoTabBtns = document.querySelectorAll('.info-tab-btn');
     const infoTabContents = document.querySelectorAll('.info-tab-content');
@@ -437,7 +376,6 @@ function setupInfoTabs() {
                     content.classList.add('active');
                 }
             });
-            // Если это вкладка магазина, загружаем товары
             if (tabId === 'shop') {
                 setTimeout(loadShopProducts, 200);
             }
@@ -445,18 +383,19 @@ function setupInfoTabs() {
     });
 }
 
-// ===================== МАГАЗИН (EasyDonate API) =====================
+// ========== МАГАЗИН (ЧЕРЕЗ CLOUDFLARE WORKER) ==========
 const SHOP_CONFIG = {
-    apiKey: "90e6baaf7c43d441540e966a5d52c7c0",
+    apiKey: "90e6baaf7c43d441540e966a5d52c7c0", // не используется, но оставлено для совместимости
     shopId: "155890",
     serverId: 139070,
-    shopUrl: "https://easydonate.ru/shop/155890",
-    apiBase: "https://easydonate.ru/api/v3"
+    shopUrl: "https://psmc.easydonate.ru",
+    apiBase: "https://psmc-proxy.s-v-p-1251.workers.dev" // Worker URL
 };
 
 async function loadShopProducts() {
     const container = document.getElementById('shopProducts');
     if (!container) return;
+    // Если уже загружены, не перезагружаем
     if (container.dataset.loaded === 'true') return;
 
     container.innerHTML = `
@@ -468,12 +407,7 @@ async function loadShopProducts() {
 
     try {
         const response = await fetch(`${SHOP_CONFIG.apiBase}/shop/products`, {
-            method: 'GET',
-            headers: {
-                'Shop-Key': SHOP_CONFIG.apiKey,
-                'User-Agent': 'PSMC-Site/1.0',
-                'Accept': 'application/json'
-            }
+            headers: { 'Accept': 'application/json' }
         });
 
         if (!response.ok) {
@@ -483,7 +417,6 @@ async function loadShopProducts() {
         const data = await response.json();
         console.log('Товары от EasyDonate:', data);
 
-        // Правильная структура: data.response содержит массив
         const products = data.response || data.data || data;
         if (!Array.isArray(products) || products.length === 0) {
             container.innerHTML = `<div class="shop-error"><i class="fas fa-info-circle"></i> Товары не найдены.</div>`;
@@ -495,14 +428,24 @@ async function loadShopProducts() {
 
     } catch (error) {
         console.error('Ошибка загрузки товаров:', error);
+        // Показываем предупреждение вместо ошибки
         container.innerHTML = `
-            <div class="shop-error">
-                <i class="fas fa-exclamation-triangle"></i>
-                Не удалось загрузить товары. Пожалуйста, обновите страницу позже.
-                <br><small style="color:var(--muted);">${error.message}</small>
-                <br><small style="color:var(--muted);">Попробуйте открыть магазин напрямую: <a href="${SHOP_CONFIG.shopUrl}" target="_blank" style="color:var(--primary);">${SHOP_CONFIG.shopUrl}</a></small>
+            <div style="background: rgba(255, 166, 38, 0.15); border: 2px solid var(--warning); border-radius: 12px; padding: 25px; text-align: center;">
+                <i class="fas fa-exclamation-triangle" style="color: var(--warning); font-size: 2.5rem; display: block; margin-bottom: 15px;"></i>
+                <h4 style="color: var(--warning); margin-bottom: 10px;">Магазин временно недоступен</h4>
+                <p style="color: var(--light); max-width: 500px; margin: 0 auto;">
+                    Для доступа к магазину <strong>включите VPN</strong> и обновите страницу.<br>
+                    Или перейдите в магазин напрямую:
+                </p>
+                <a href="${SHOP_CONFIG.shopUrl}" target="_blank" style="display: inline-block; margin-top: 15px; color: var(--primary); text-decoration: underline;">${SHOP_CONFIG.shopUrl}</a>
+                <br>
+                <button onclick="loadShopProducts()" style="margin-top: 20px; padding: 12px 25px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem;">
+                    <i class="fas fa-sync-alt"></i> Попробовать снова
+                </button>
             </div>
         `;
+        // Сбрасываем флаг, чтобы можно было повторить попытку
+        container.dataset.loaded = 'false';
     }
 }
 
@@ -533,7 +476,6 @@ function renderProducts(products) {
         container.appendChild(card);
     });
 
-    // Обработчик для всех кнопок "Купить"
     document.querySelectorAll('.buy-btn').forEach(btn => {
         btn.addEventListener('click', async function() {
             const productId = this.dataset.productId;
@@ -545,24 +487,19 @@ function renderProducts(products) {
 async function createPayment(productId) {
     const container = document.getElementById('shopProducts');
     
-    // Удаляем предыдущий блок загрузки, если есть
     const oldLoading = container.querySelector('.shop-loading');
     if (oldLoading) oldLoading.remove();
 
-    // Создаём новый блок с рамкой и текстом "Обработка..."
     const loadingMsg = document.createElement('div');
     loadingMsg.className = 'shop-loading';
     loadingMsg.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Обработка...`;
     container.prepend(loadingMsg);
 
     try {
-        const response = await fetch(`${SHOP_CONFIG.apiBase}/shop/payment/create?customer=${encodeURIComponent('Игрок')}&server_id=${SHOP_CONFIG.serverId}&products={"${productId}":1}`, {
+        const url = `${SHOP_CONFIG.apiBase}/shop/payment/create?customer=${encodeURIComponent('Игрок')}&server_id=${SHOP_CONFIG.serverId}&products={"${productId}":1}`;
+        const response = await fetch(url, {
             method: 'GET',
-            headers: {
-                'Shop-Key': SHOP_CONFIG.apiKey,
-                'User-Agent': 'PSMC-Site/1.0',
-                'Accept': 'application/json'
-            }
+            headers: { 'Accept': 'application/json' }
         });
 
         if (!response.ok) {
@@ -582,13 +519,12 @@ async function createPayment(productId) {
         console.error('Ошибка создания платежа:', error);
         alert(`Не удалось создать платёж: ${error.message}`);
     } finally {
-        // Удаляем блок загрузки после завершения (успех или ошибка)
         const loading = container.querySelector('.shop-loading');
         if (loading) loading.remove();
     }
 }
 
-// Подключаем загрузку магазина при активации вкладки
+// ========== АВТОЗАГРУЗКА МАГАЗИНА ==========
 const originalSetupInfoTabs = setupInfoTabs;
 setupInfoTabs = function() {
     originalSetupInfoTabs();
@@ -603,10 +539,13 @@ setupInfoTabs = function() {
     }
 };
 
-// Экспорт для отладки (теперь window.PSMC точно существует)
+// ========== ДЛЯ ОТЛАДКИ ==========
 window.PSMC = window.PSMC || {};
 window.PSMC.shop = {
     load: loadShopProducts,
     config: SHOP_CONFIG
 };
-
+window.PSMC.server = {
+    check: checkServerStatus,
+    state: serverState
+};

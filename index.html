@@ -256,9 +256,13 @@
                     <div class="shop-container">
                         <h3 style="color:var(--primary); margin-bottom:15px;">🛍️ Магазин доната</h3>
                         <p style="color:var(--muted); margin-bottom:30px;">Приобретайте привилегии и косметику для сервера PSMC!</p>
-                        <iframe src="https://easydonate.ru/shop/155890" 
-                                style="width:100%; height:700px; border:2px solid var(--border); border-radius:15px; background:var(--dark);">
-                        </iframe>
+                        <div id="shopProducts" class="shop-grid">
+                            <!-- Товары будут загружены через API -->
+                            <div style="text-align:center; padding:40px;">
+                                <i class="fas fa-spinner fa-spin" style="font-size:2rem; color:var(--primary);"></i>
+                                <p style="color:var(--muted);">Загрузка товаров...</p>
+                            </div>
+                        </div>
                         <p style="color:var(--muted); margin-top:20px; font-size:0.9rem; text-align:center;">
                             <i class="fas fa-lock"></i> Все покупки обрабатываются через защищённое соединение EasyDonate.
                         </p>
