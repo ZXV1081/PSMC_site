@@ -1,0 +1,80 @@
+:root {
+    --primary: #4a9eff;
+    --primary-dark: #2d5aa0;
+    --secondary: #ff6b6b;
+    --success: #4CAF50;
+    --danger: #f44336;
+    --dark: #1a1a2e;
+    --darker: #0f0f1a;
+    --light: #e0e0ff;
+    --muted: #a0a0ff;
+    --card-bg: rgba(30, 30, 46, 0.95);
+    --border: rgba(74, 158, 255, 0.2);
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background: linear-gradient(135deg, var(--dark) 0%, var(--darker) 100%);
+    color: var(--light);
+    margin: 0;
+    min-height: 100vh;
+}
+
+.container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+
+/* Экран входа */
+.auth-box {
+    max-width: 400px;
+    margin: 100px auto;
+    background: var(--card-bg);
+    padding: 40px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    text-align: center;
+}
+.server-title { font-family: 'Minecraft', monospace; font-size: 2.5rem; color: var(--primary); margin-bottom: 5px; }
+.server-subtitle { color: var(--muted); margin-bottom: 30px; }
+.form-group { text-align: left; margin-bottom: 20px; }
+.form-group label { display: block; margin-bottom: 5px; color: var(--muted); font-size: 0.9rem; }
+.form-group input {
+    width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border);
+    background: rgba(0,0,0,0.3); color: white; box-sizing: border-box; outline: none;
+}
+.action-btn {
+    padding: 12px 25px; border-radius: 8px; border: none; font-size: 1rem;
+    cursor: pointer; transition: all 0.3s; font-weight: 500;
+}
+.action-btn.primary { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; width: 100%; }
+.action-btn.secondary { background: transparent; border: 1px solid var(--primary); color: var(--primary); }
+.error-text { color: var(--danger); margin-top: 10px; font-size: 0.9rem; }
+
+/* Панель */
+.dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.dashboard-layout { display: grid; grid-template-columns: 300px 1fr; gap: 20px; height: calc(100vh - 120px); }
+
+/* Список тикетов */
+.ticket-list-panel { background: var(--card-bg); border-radius: 15px; border: 1px solid var(--border); overflow-y: auto; }
+.ticket-list-panel h3 { padding: 15px; margin: 0; border-bottom: 1px solid var(--border); color: var(--primary); }
+.ticket-item {
+    padding: 15px; border-bottom: 1px solid var(--border); cursor: pointer; transition: 0.2s;
+}
+.ticket-item:hover { background: rgba(74, 158, 255, 0.1); }
+.ticket-item.active { background: rgba(74, 158, 255, 0.2); border-left: 3px solid var(--primary); }
+.ticket-subject { font-weight: bold; margin-bottom: 5px; display: block; }
+.ticket-meta { font-size: 0.8rem; color: var(--muted); display: flex; justify-content: space-between; }
+.status-badge { padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; text-transform: uppercase; }
+.status-new { background: rgba(255, 167, 38, 0.2); color: var(--warning); }
+.status-open { background: rgba(76, 175, 80, 0.2); color: var(--success); }
+.status-closed { background: rgba(244, 67, 54, 0.2); color: var(--danger); }
+
+/* Чат */
+.chat-panel { background: var(--card-bg); border-radius: 15px; border: 1px solid var(--border); display: flex; flex-direction: column; }
+.empty-state { display: flex; align-items: center; justify-content: center; height: 100%; color: var(--muted); }
+.chat-header { padding: 15px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+.chat-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
+.message { max-width: 70%; padding: 12px 15px; border-radius: 12px; font-size: 0.95rem; line-height: 1.5; }
+.message.client { align-self: flex-start; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border); }
+.message.agent { align-self: flex-end; background: rgba(74, 158, 255, 0.15); border: 1px solid var(--primary); }
+.message-meta { font-size: 0.75rem; color: var(--muted); margin-top: 5px; text-align: right; }
+.chat-input-area { padding: 15px; border-top: 1px solid var(--border); display: flex; gap: 10px; }
+.chat-input-area textarea { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: rgba(0,0,0,0.3); color: white; resize: none; font-family: inherit; }

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>PSMC - Регистрация</title>
+    <link rel="stylesheet" href="css/support.css">
+</head>
+<body>
+    <div class="container">
+        <div class="auth-box">
+            <h1 class="server-title">PSMC</h1>
+            <p class="server-subtitle">Создание аккаунта</p>
+            <form id="register-form">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="reg-email" required placeholder="you@example.com">
+                </div>
+                <div class="form-group">
+                    <label>Пароль</label>
+                    <input type="password" id="reg-password" required minlength="6">
+                </div>
+                <button type="submit" class="action-btn primary">Зарегистрироваться</button>
+                <p id="reg-error" class="error-text"></p>
+            </form>
+            <p style="margin-top: 20px; color: var(--muted);">
+                Уже есть аккаунт? <a href="support.html" style="color: var(--primary);">Войти</a>
+            </p>
+        </div>
+    </div>
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
+        const supabase = createClient('ВАШ_URL', 'ВАШ_PUBLISHABLE_KEY')
+
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault()
+            const email = document.getElementById('reg-email').value
+            const password = document.getElementById('reg-password').value
+            const errorEl = document.getElementById('reg-error')
+
+            const { error } = await supabase.auth.signUp({ email, password })
+            
+            if (error) {
+                errorEl.textContent = error.message
+            } else {
+                errorEl.textContent = ''
+                alert('Аккаунт создан! Теперь вы можете войти.')
+                window.location.href = 'support.html'
+            }
+        })
+    </script>
+</body>
+</html>

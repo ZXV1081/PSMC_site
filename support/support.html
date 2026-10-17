@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PSMC Support - Панель тикетов</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Minecraft&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/support.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Экран входа -->
+        <div id="login-screen" class="auth-box">
+            <h1 class="server-title">PSMC Support</h1>
+            <p class="server-subtitle">Вход для сотрудников</p>
+            <form id="login-form">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="login-email" required placeholder="support@psmc-online.ru">
+                </div>
+                <div class="form-group">
+                    <label>Пароль</label>
+                    <input type="password" id="login-password" required>
+                </div>
+                <button type="submit" class="action-btn primary">Войти</button>
+                <p id="login-error" class="error-text"></p>
+            </form>
+        </div>
+
+        <!-- Экран панели -->
+        <div id="dashboard-screen" style="display:none;">
+            <header class="dashboard-header">
+                <h2><i class="fas fa-headset"></i> Тикеты поддержки</h2>
+                <button id="logout-btn" class="action-btn secondary">Выйти</button>
+            </header>
+
+            <div class="dashboard-layout">
+                <!-- Список тикетов -->
+                <aside class="ticket-list-panel">
+                    <h3>Очередь</h3>
+                    <div id="tickets-list"></div>
+                </aside>
+
+                <!-- Область переписки -->
+                <main class="chat-panel" id="chat-panel">
+                    <div class="empty-state">Выберите тикет для просмотра</div>
+                </main>
+            </div>
+        </div>
+    </div>
+    
+    <script type="module" src="js/support.js"></script>
+</body>
+</html>
