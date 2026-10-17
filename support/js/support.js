@@ -1,9 +1,7 @@
-// support/js/support.js
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
 
-// ⚠️ ЗАМЕНИТЕ НА ВАШИ ДАННЫЕ ИЗ SUPABASE (Project Settings -> API)
 const SUPABASE_URL = 'https://alhrersusznjnpnyqlcq.supabase.co'
-const SUPABASE_ANON_KEY = 'sb_publishable_B10yl_NY341a4H-BvjW78A_KyxZlDbQ' // Публичный anon key
+const SUPABASE_ANON_KEY = 'sb_publishable_B10yl_NY341a4H-BvjW78A_KyxZlDbQ' 
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 
@@ -74,6 +72,7 @@ async function loadTickets() {
     tickets.forEach(ticket => {
         const div = document.createElement('div')
         div.className = 'ticket-item'
+        div.id = `ticket-${ticket.id}` // Добавляем ID для выделения
         div.innerHTML = `
             <span class="ticket-subject">${ticket.subject || 'Без темы'}</span>
             <div class="ticket-meta">
@@ -91,8 +90,10 @@ async function openTicket(ticket) {
     currentTicketId = ticket.id
     currentTicket = ticket
     
+    // Визуально выделяем выбранный тикет
     document.querySelectorAll('.ticket-item').forEach(el => el.classList.remove('active'))
-    // (В реальном коде стоит добавить класс active к выбранному)
+    const activeEl = document.getElementById(`ticket-${ticket.id}`)
+    if (activeEl) activeEl.classList.add('active')
 
     chatPanel.innerHTML = `
         <div class="chat-header">
@@ -146,6 +147,11 @@ async function sendReply() {
     const text = input.value.trim()
     if (!text || !currentTicketId) return
 
+    // Блокируем кнопку, чтобы не отправить дважды
+    const btn = document.getElementById('send-reply-btn')
+    btn.disabled = true
+    btn.textContent = 'Отправка...'
+
     // 1. Сохраняем сообщение в БД
     const { data, error: msgError } = await supabase
         .from('support_messages')
@@ -154,17 +160,17 @@ async function sendReply() {
             sender_type: 'agent',
             body: text
         })
-        .select() // Добавляем .select(), чтобы увидеть, что именно сохранилось
+        .select()
 
     if (msgError) { 
-        // ВМЕСТО alert() ВЫВОДИМ ПОЛНУЮ ОШИБКУ НА ЭКРАН
-        alert('ОШИБКА БАЗЫ ДАННЫХ:\n' + msgError.message + '\n' + msgError.details + '\n' + msgError.hint); 
+        alert('ОШИБКА БАЗЫ ДАННЫХ:\n' + msgError.message + '\n' + msgError.details); 
         console.error("Полная ошибка:", msgError);
+        btn.disabled = false
+        btn.textContent = 'Отправить'
         return 
     }
 
-    // 2. Вызываем Edge Function для отправки письма через Resend (см. ниже)
-    //    (Мы создадим её отдельно, чтобы не хранить ключи Resend на клиенте)
+    // 2. Вызываем Edge Function для отправки письма
     const { error: fnError } = await supabase.functions.invoke('send-reply-email', {
         body: {
             ticket_id: currentTicketId,
@@ -172,7 +178,6 @@ async function sendReply() {
             subject: currentTicket.subject,
             reply_text: text,
             in_reply_to: currentTicket.resend_message_id 
-            // agent_nick мы больше не передаем! Функция сама возьмет его из базы по токену.
         }
     })
 
@@ -182,6 +187,9 @@ async function sendReply() {
         input.value = ''
         loadMessages(currentTicketId)
     }
+
+    btn.disabled = false
+    btn.textContent = 'Отправить'
 }
 
 // === 5. Закрытие тикета ===
@@ -206,13 +214,11 @@ const closeSettingsBtn = document.getElementById('close-settings')
 const settingsForm = document.getElementById('settings-form')
 const settingsMsg = document.getElementById('settings-msg')
 
-// Открытие модального окна
 settingsBtn.addEventListener('click', async () => {
     settingsModal.style.display = 'flex'
     settingsMsg.textContent = ''
     document.getElementById('set-password').value = ''
 
-    // Загружаем текущий ник
     const { data: { user } } = await supabase.auth.getUser()
     if (user) {
         const { data: profile } = await supabase
@@ -227,12 +233,10 @@ settingsBtn.addEventListener('click', async () => {
     }
 })
 
-// Закрытие
 closeSettingsBtn.addEventListener('click', () => {
     settingsModal.style.display = 'none'
 })
 
-// Сохранение
 settingsForm.addEventListener('submit', async (e) => {
     e.preventDefault()
     settingsMsg.style.color = 'var(--muted)'
@@ -244,7 +248,6 @@ settingsForm.addEventListener('submit', async (e) => {
     const { data: { user } } = await supabase.auth.getUser()
 
     try {
-        // 1. Обновляем ник в таблице profiles
         const { error: profileError } = await supabase
             .from('profiles')
             .update({ nickname: newNickname })
@@ -255,7 +258,6 @@ settingsForm.addEventListener('submit', async (e) => {
             throw profileError
         }
 
-        // 2. Обновляем пароль (если введен)
         if (newPassword) {
             const { error: passError } = await supabase.auth.updateUser({ password: newPassword })
             if (passError) throw passError
