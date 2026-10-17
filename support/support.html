@@ -29,11 +29,15 @@
         </div>
 
         <!-- Экран панели -->
-        <div id="dashboard-screen" style="display:none;">
-            <header class="dashboard-header">
-                <h2><i class="fas fa-headset"></i> Тикеты поддержки</h2>
+        <header class="dashboard-header">
+            <h2><i class="fas fa-headset"></i> Тикеты поддержки</h2>
+            <div>
+                <button id="settings-btn" class="action-btn secondary" style="margin-right: 10px;">
+                    <i class="fas fa-cog"></i>
+                </button>
                 <button id="logout-btn" class="action-btn secondary">Выйти</button>
-            </header>
+            </div>
+        </header>
 
             <div class="dashboard-layout">
                 <!-- Список тикетов -->
@@ -51,7 +55,28 @@
     </div>
     
     <script type="module" src="js/support.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
-<script>eruda.init();</script>
+<!-- Модальное окно настроек -->
+<div id="settings-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; align-items:center; justify-content:center;">
+    <div class="auth-box" style="margin:0; width:90%; max-width:400px; position:relative;">
+        <button id="close-settings" style="position:absolute; top:15px; right:15px; background:none; border:none; color:var(--muted); font-size:1.5rem; cursor:pointer;">&times;</button>
+        <h2 style="margin-bottom:20px; color:var(--primary);">Настройки профиля</h2>
+        
+        <form id="settings-form">
+            <div class="form-group">
+                <label>Ваш никнейм (для почты)</label>
+                <input type="text" id="set-nickname" placeholder="Например: alex" required pattern="[a-zA-Z0-9._-]+">
+                <small style="color:var(--muted); font-size:0.8rem;">Будет использоваться как alex@psmc-online.ru</small>
+            </div>
+            
+            <div class="form-group" style="margin-top:20px;">
+                <label>Новый пароль (оставьте пустым, если не меняете)</label>
+                <input type="password" id="set-password" minlength="6">
+            </div>
+
+            <button type="submit" class="action-btn primary">Сохранить изменения</button>
+            <p id="settings-msg" style="text-align:center; margin-top:15px; font-weight:bold;"></p>
+        </form>
+    </div>
+</div>
 </body>
 </html>
