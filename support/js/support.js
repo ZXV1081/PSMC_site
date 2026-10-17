@@ -147,15 +147,21 @@ async function sendReply() {
     if (!text || !currentTicketId) return
 
     // 1. Сохраняем сообщение в БД
-    const { error: msgError } = await supabase
+    const { data, error: msgError } = await supabase
         .from('support_messages')
         .insert({
             ticket_id: currentTicketId,
             sender_type: 'agent',
             body: text
         })
+        .select() // Добавляем .select(), чтобы увидеть, что именно сохранилось
 
-    if (msgError) { alert('Ошибка сохранения сообщения'); return }
+    if (msgError) { 
+        // ВМЕСТО alert() ВЫВОДИМ ПОЛНУЮ ОШИБКУ НА ЭКРАН
+        alert('ОШИБКА БАЗЫ ДАННЫХ:\n' + msgError.message + '\n' + msgError.details + '\n' + msgError.hint); 
+        console.error("Полная ошибка:", msgError);
+        return 
+    }
 
     // 2. Вызываем Edge Function для отправки письма через Resend (см. ниже)
     //    (Мы создадим её отдельно, чтобы не хранить ключи Resend на клиенте)
