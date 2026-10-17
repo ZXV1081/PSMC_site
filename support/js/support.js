@@ -199,5 +199,80 @@ async function closeTicket() {
     }
 }
 
+// === НАСТРОЙКИ ПРОФИЛЯ ===
+const settingsBtn = document.getElementById('settings-btn')
+const settingsModal = document.getElementById('settings-modal')
+const closeSettingsBtn = document.getElementById('close-settings')
+const settingsForm = document.getElementById('settings-form')
+const settingsMsg = document.getElementById('settings-msg')
+
+// Открытие модального окна
+settingsBtn.addEventListener('click', async () => {
+    settingsModal.style.display = 'flex'
+    settingsMsg.textContent = ''
+    document.getElementById('set-password').value = ''
+
+    // Загружаем текущий ник
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user) {
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('nickname')
+            .eq('id', user.id)
+            .single()
+        
+        if (profile) {
+            document.getElementById('set-nickname').value = profile.nickname
+        }
+    }
+})
+
+// Закрытие
+closeSettingsBtn.addEventListener('click', () => {
+    settingsModal.style.display = 'none'
+})
+
+// Сохранение
+settingsForm.addEventListener('submit', async (e) => {
+    e.preventDefault()
+    settingsMsg.style.color = 'var(--muted)'
+    settingsMsg.textContent = 'Сохранение...'
+
+    const newNickname = document.getElementById('set-nickname').value.trim().toLowerCase()
+    const newPassword = document.getElementById('set-password').value
+
+    const { data: { user } } = await supabase.auth.getUser()
+
+    try {
+        // 1. Обновляем ник в таблице profiles
+        const { error: profileError } = await supabase
+            .from('profiles')
+            .update({ nickname: newNickname })
+            .eq('id', user.id)
+        
+        if (profileError) {
+            if (profileError.code === '23505') throw new Error('Этот никнейм уже занят')
+            throw profileError
+        }
+
+        // 2. Обновляем пароль (если введен)
+        if (newPassword) {
+            const { error: passError } = await supabase.auth.updateUser({ password: newPassword })
+            if (passError) throw passError
+        }
+
+        settingsMsg.style.color = 'var(--success)'
+        settingsMsg.textContent = 'Успешно сохранено!'
+        
+        setTimeout(() => {
+            settingsModal.style.display = 'none'
+        }, 1500)
+
+    } catch (error) {
+        settingsMsg.style.color = 'var(--danger)'
+        settingsMsg.textContent = error.message
+    }
+})
+
 // Инициализация
 checkSession()
