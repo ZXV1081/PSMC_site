@@ -2,306 +2,92 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PSMC - Prosto Server Minecraft</title>
-    <link rel="stylesheet" href="css/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PSMC Support - Панель тикетов</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Minecraft&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/x-icon" href="img/favicon.ico">
-    <meta http-equiv="Permissions-Policy" content="unload=()">
+    <link rel="stylesheet" href="css/support.css">
 </head>
 <body>
     <div class="container">
-        <!-- Заголовок -->
-        <header class="header">
-            <div class="title-section">
-                <img src="img/title_img.png" alt="PSMC Server" class="title-image" id="serverImage">
-                <div class="title-glow"></div>
-                <div class="server-brand">
-                    <h1 class="server-title">PSMC</h1>
-                    <p class="server-subtitle">Prosto Server Minecraft</p>
-                    <div class="server-tagline">Просто сервер. Просто играй.</div>
+        <!-- Экран входа -->
+        <div id="login-screen" class="auth-box">
+            <h1 class="server-title">PSMC Support</h1>
+            <p class="server-subtitle">Вход для сотрудников</p>
+            <form id="login-form">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="login-email" required placeholder="support@psmc-online.ru">
                 </div>
-            </div>
-        </header>
-
-        <!-- Статус сервера -->
-        <section class="online-section">
-            <h2><i class="fas fa-heart"></i> Состояние сервера</h2>
-            <div class="server-status">
-                <div class="status-card">
-                    <div class="status-header">
-                        <div class="status-indicator" id="statusIndicator"></div>
-                        <div class="status-info">
-                            <h3 id="statusText">Проверяем соединение...</h3>
-                            <p class="status-sub">Реальный статус вашего сервера</p>
-                        </div>
-                        <div class="player-count-box" id="playerCount">
-                            <span class="count-number">?</span>
-                            <span class="count-label">онлайн</span>
-                        </div>
-                    </div>
-                    
-                    <div class="server-details">
-                        <div class="detail-item">
-                            <i class="fas fa-map-marker-alt"></i>
-                            <div>
-                                <label>Адрес сервера</label>
-                                <strong id="serverIp">psmc.minerent.io:25565</strong>
-                            </div>
-                        </div>
-                        <div class="detail-item">
-                            <i class="fas fa-code"></i>
-                            <div>
-                                <label>Версия игры</label>
-                                <strong id="serverVersion">1.21.11</strong>
-                            </div>
-                        </div>
-                        <div class="detail-item">
-                            <i class="fas fa-bolt"></i>
-                            <div>
-                                <label>Пинг</label>
-                                <strong id="serverPing">—</strong>
-                            </div>
-                        </div>
-                        <div class="detail-item">
-                            <i class="far fa-clock"></i>
-                            <div>
-                                <label>Последняя проверка</label>
-                                <strong id="lastUpdate">—</strong>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="status-actions">
-                        <button class="action-btn primary" id="refreshBtn">
-                            <i class="fas fa-sync-alt"></i> Проверить сейчас
-                        </button>
-                        <button class="action-btn secondary" id="copyIpBtn">
-                            <i class="far fa-copy"></i> Скопировать IP
-                        </button>
-                    </div>
+                <div class="form-group">
+                    <label>Пароль</label>
+                    <input type="password" id="login-password" required>
                 </div>
-            </div>
-        </section>
-
-        <div class="divider"></div>
-
-        <!-- Как подключиться -->
-        <section class="connect-section">
-            <h2><i class="fas fa-plug"></i> Как подключиться</h2>
-            
-            <div class="platform-tabs">
-                <button class="tab-btn active" data-tab="java">Java Edition</button>
-                <button class="tab-btn" data-tab="bedrock">Bedrock Edition</button>
-            </div>
-            
-            <div class="tab-content active" id="javaTab">
-                <div class="connect-steps">
-                    <div class="step">
-                        <div class="step-icon">
-                            <i class="fab fa-java"></i>
-                        </div>
-                        <h3>1. Запустите Minecraft Java</h3>
-                        <p>Версия <strong>1.21.11</strong></p>
-                    </div>
-                    <div class="step">
-                        <div class="step-icon">
-                            <i class="fas fa-plus"></i>
-                        </div>
-                        <h3>2. Добавьте сервер</h3>
-                        <p>Меню → Сетевая игра → Добавить сервер</p>
-                    </div>
-                    <div class="step">
-                        <div class="step-icon">
-                            <i class="fas fa-keyboard"></i>
-                        </div>
-                        <h3>3. Введите адрес</h3>
-                        <div class="server-address">
-                            <code id="javaAddress">psmc.minerent.io:25565</code>
-                            <button class="copy-small" data-address="psmc.minerent.io:25565">
-                                <i class="far fa-copy"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="step">
-                        <div class="step-icon">
-                            <i class="fas fa-gamepad"></i>
-                        </div>
-                        <h3>4. Играйте!</h3>
-                        <p>Присоединяйтесь к серверу</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <div class="divider"></div>
-
-        <!-- НАВИГАЦИЯ ПО ИНФОРМАЦИИ (ВКЛАДКИ) -->
-        <div class="info-tabs">
-            <div class="info-tabs-header">
-                <button class="info-tab-btn active" data-info-tab="about">ℹ️ Информация</button>
-                <button class="info-tab-btn" data-info-tab="rules">📜 Правила</button>
-                <button class="info-tab-btn" data-info-tab="plugins">🧩 Рекомендуемые моды</button>
-                <button class="info-tab-btn" data-info-tab="shop">🛒 Магазин</button>
-            </div>
-            <div class="info-tabs-content">
-                <!-- Вкладка "Информация" -->
-                <div class="info-tab-content active" id="info-about">
-                    <div class="about-card honest-card">
-                        <div class="honest-header">
-                            <i class="fas fa-handshake"></i>
-                            <h3>Честно о сервере</h3>
-                        </div>
-                        <p class="honest-text">
-                            <strong>PSMC</strong> — это сервер там есть плагины на улучшение это не типичный сервер здесь просто спавн запривачен и всё дальше сами делайте что угодно(кроме нарушения правил).
-                        </p>
-                        <div class="features-list">
-                            <div class="feature">
-                                <i class="fas fa-check-circle"></i>
-                                <span>Без приватов и защиты</span>
-                            </div>
-                            <div class="feature">
-                                <i class="fas fa-check-circle"></i>
-                                <span>С голосовым чатом</span>
-                            </div>
-                            <div class="feature">
-                                <i class="fas fa-check-circle"></i>
-                                <span>Бесплатно и навсегда</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="info-panel">
-                        <div class="info-item">
-                            <i class="fas fa-calendar-alt"></i>
-                            <div>
-                                <div class="info-label">Год основания</div>
-                                <div class="info-value">2026</div>
-                            </div>
-                        </div>
-                        <div class="info-item">
-                            <i class="fas fa-shield-alt"></i>
-                            <div>
-                                <div class="info-label">Защита</div>
-                                <div class="info-value">На сервере есть модераторы которые следят за порядком</div>
-                            </div>
-                        </div>
-                        <!-- НОВЫЙ БЛОК: Техподдержка -->
-                        <div class="info-item">
-                            <i class="fas fa-envelope"></i>
-                            <div>
-                                <div class="info-label">Техподдержка</div>
-                                <div class="info-value">
-                                    <a href="mailto:support@psmc-online.ru" style="color:var(--primary); text-decoration:none;">support@gmail.com</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Вкладка "Правила" -->
-                <div class="info-tab-content" id="info-rules">
-                    <div class="rules-content">
-                        <div class="rule-card">
-                            <div class="rule-icon">
-                                <i class="fas fa-comments"></i>
-                            </div>
-                            <h3>Общайтесь культурно</h3>
-                            <p>Без оскорблений и спама в чате (мут на 30 минут)</p>
-                        </div>
-                        <div class="rule-card">
-                            <div class="rule-icon">
-                                <i class="fas fa-leaf"></i>
-                            </div>
-                            <h3>Чистота сервера</h3>
-                            <p>Не оставляйте лаг-машины И НЕ СТРОЙТЕ ОРБИТАЛЬНУЮ ПУШКУ (бан на 1 недели, при повторе — бан навсегда)</p>
-                        </div>
-                        <div class="rule-card">
-                            <div class="rule-icon">
-                                <i class="fas fa-gamepad"></i>
-                            </div>
-                            <h3>Не читерите</h3>
-                            <p>Любые читы запрещены (бан на 10 дней, при повторе — бан навсегда)</p>
-                        </div>
-                        <div class="rule-card">
-                            <div class="rule-icon">
-                                <i class="fas fa-leaf"></i>
-                            </div>
-                            <h3>Чистота сервера</h3>
-                            <p>Не стройте плохие постройки (бан на 2 часа)</p>
-                        </div>
-                    </div>
-                    <div class="rules-note">
-                        <i class="fas fa-gavel"></i>
-                        <p><strong>Важно:</strong> Наказания применяются модераторами в индивидуальном порядке. Сервер стремится быть дружелюбным местом для всех.</p>
-                    </div>
-                </div>
-
-                <!-- Вкладка "Рекомендуемые плагины/моды" -->
-                <div class="info-tab-content" id="info-plugins">
-                    <div class="plugins-grid">
-                        <div class="plugin-card">
-                            <i class="fas fa-microphone-alt"></i>
-                            <h3>Simple Voice Chat</h3>
-                            <p>Голосовой чат в игре. Общайтесь с другими игроками в реальном времени.</p>
-                            <a href="https://modrinth.com/plugin/simple-voice-chat" target="_blank" class="plugin-link">Скачать</a>
-                        </div>
-                    </div>
-                    <p class="plugins-note"><i class="fas fa-info-circle"></i> Эти моды/плагины не обязательны, но улучшают опыт игры. Все они совместимы с ванильным сервером.</p>
-
-
-        <!-- Быстрое подключение -->
-        <div class="quick-connect">
-            <h3><i class="fas fa-bolt"></i> Быстрое подключение</h3>
-            <div class="quick-buttons">
-                <button class="quick-btn java-btn" id="quickJava">
-                    <i class="fab fa-java"></i> Копировать для Java
-                </button>
-                <button class="quick-btn bedrock-btn" id="quickBedrock" disabled>
-                    <i class="fas fa-mobile-alt"></i> Bedrock недоступен
-                </button>
-            </div>
-            <div class="address-display">
-                <div class="address-box">
-                    <span class="address-label">Java:</span>
-                    <code class="address-value">psmc.minerent.io:25565</code>
-
-                </div>
-            </div>
+                <button type="submit" class="action-btn primary">Войти</button>
+                <p id="login-error" class="error-text"></p>
+            </form>
         </div>
 
-        <footer class="footer">
-            <div class="footer-content">
-                <div class="footer-brand">
-                    <h3>PSMC</h3>
-                    <p>Prosto Server Minecraft</p>
-                    <p class="footer-motto">Просто игра в хорошей компании</p>
+        <!-- Экран панели -->
+        <div id="dashboard-screen" style="display: none;">
+            <header class="dashboard-header">
+                <h2><i class="fas fa-headset"></i> Тикеты</h2>
+                <div>
+                    <button id="settings-btn" class="action-btn secondary btn-icon" title="Настройки">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                    <button id="logout-btn" class="action-btn secondary btn-icon" title="Выйти">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
                 </div>
-                
-                <div class="footer-links">
-                    <a href="https://discord.gg/wAz6SRhhF" class="footer-link">
-                        <i class="fab fa-discord"></i> Discord
-                    </a>
-                    <a href="https://twitch.tv/ValpiPro" class="footer-link">
-                        <i class="fab fa-twitch"></i> Twitch
-                    </a>
-                    <a href="https://www.donationalerts.com/r/ValpiPro" class="footer-link">
-                        <i class="fa fa-donate"></i> Donation Alert
-                    </a>
+            </header>
 
+            <div class="dashboard-layout">
+                <!-- Список тикетов -->
+                <aside class="ticket-list-panel">
+                    <h3>Очередь</h3>
+                    <div id="tickets-list"></div>
+                </aside>
+
+                <!-- Область переписки -->
+                <main class="chat-panel" id="chat-panel">
+                    <div class="empty-state">Выберите тикет для просмотра</div>
+                </main>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Настройки профиля -->
+    <div id="settings-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-box">
+            <button id="close-settings" class="modal-close">&times;</button>
+            <h2>Настройки профиля</h2>
+            <form id="settings-form">
+                <div class="form-group">
+                    <label>Ваш никнейм (для почты)</label>
+                    <input type="text" id="set-nickname" placeholder="alex" required pattern="[a-zA-Z0-9._-]+">
+                    <small>Будет использоваться как alex@psmc-online.ru</small>
                 </div>
-                
-            </div>
-            
-            <div class="footer-bottom">
-                <p>Copyright © 2026 PSMC - Prosto Server Minecraft. Данные обновляются в реальном времени.</p>
-                <p class="server-status-note">
-                    <i class="fas fa-sync-alt"></i> Статус обновляется каждые 30 секунд
-                </p>
-            </div>
-        </footer>
+                <div class="form-group">
+                    <label>Новый пароль (если меняете)</label>
+                    <input type="password" id="set-password" minlength="6">
+                </div>
+                <button type="submit" class="action-btn primary">Сохранить</button>
+                <p id="settings-msg" class="msg-text"></p>
+            </form>
+        </div>
     </div>
 
-    <script src="js/script.js"></script>
+    <!-- Универсальное окно уведомлений (вместо alert) -->
+    <div id="alert-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-box" style="max-width: 400px;">
+            <h3 id="alert-title" style="color: var(--primary); margin-bottom: 15px;">Уведомление</h3>
+            <p id="alert-message" style="margin-bottom: 25px; line-height: 1.5;"></p>
+            <button id="alert-ok-btn" class="action-btn primary">Понятно</button>
+        </div>
+    </div>
+
+    <!-- Скрипт -->
+    <script type="module" src="js/support.js"></script>
 </body>
 </html>
