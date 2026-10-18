@@ -13,8 +13,30 @@ const loginError = document.getElementById('login-error')
 const ticketsList = document.getElementById('tickets-list')
 const chatPanel = document.getElementById('chat-panel')
 
+// Элементы кастомного уведомления
+const alertModal = document.getElementById('alert-modal')
+const alertTitle = document.getElementById('alert-title')
+const alertMessage = document.getElementById('alert-message')
+const alertOkBtn = document.getElementById('alert-ok-btn')
+
 let currentTicketId = null
 let currentTicket = null
+let realtimeChannel = null
+let closeTimer = null
+
+// === Функция красивого уведомления (вместо alert) ===
+function showAlert(title, message) {
+    return new Promise((resolve) => {
+        alertTitle.textContent = title
+        alertMessage.innerHTML = message.replace(/\n/g, '<br>')
+        alertModal.style.display = 'flex'
+        
+        alertOkBtn.onclick = () => {
+            alertModal.style.display = 'none'
+            resolve()
+        }
+    })
+}
 
 // === 1. Авторизация ===
 loginForm.addEventListener('submit', async (e) => {
@@ -23,11 +45,7 @@ loginForm.addEventListener('submit', async (e) => {
     const password = document.getElementById('login-password').value
     
     const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-    
-    if (error) {
-        loginError.textContent = error.message
-        return
-    }
+    if (error) { loginError.textContent = error.message; return }
     
     loginError.textContent = ''
     showDashboard()
@@ -40,11 +58,7 @@ document.getElementById('logout-btn').addEventListener('click', async () => {
 
 async function checkSession() {
     const { data: { session } } = await supabase.auth.getSession()
-    if (session) {
-        showDashboard()
-    } else {
-        showLogin()
-    }
+    if (session) showDashboard(); else showLogin();
 }
 
 function showDashboard() {
@@ -72,7 +86,7 @@ async function loadTickets() {
     tickets.forEach(ticket => {
         const div = document.createElement('div')
         div.className = 'ticket-item'
-        div.id = `ticket-${ticket.id}` // Добавляем ID для выделения
+        div.id = `ticket-${ticket.id}`
         div.innerHTML = `
             <span class="ticket-subject">${ticket.subject || 'Без темы'}</span>
             <div class="ticket-meta">
@@ -85,12 +99,14 @@ async function loadTickets() {
     })
 }
 
-// === 3. Открытие тикета и переписка ===
+// === 3. Открытие тикета ===
 async function openTicket(ticket) {
+    if (closeTimer) { clearInterval(closeTimer); closeTimer = null; } // Сбрасываем таймер при переключении
+    if (realtimeChannel) supabase.removeChannel(realtimeChannel)
+
     currentTicketId = ticket.id
     currentTicket = ticket
     
-    // Визуально выделяем выбранный тикет
     document.querySelectorAll('.ticket-item').forEach(el => el.classList.remove('active'))
     const activeEl = document.getElementById(`ticket-${ticket.id}`)
     if (activeEl) activeEl.classList.add('active')
@@ -101,19 +117,40 @@ async function openTicket(ticket) {
                 <h3 style="margin:0;">${ticket.subject || 'Без темы'}</h3>
                 <small style="color:var(--muted);">${ticket.requester_email}</small>
             </div>
-            <button id="close-ticket-btn" class="action-btn secondary">Закрыть тикет</button>
+            <div style="display:flex; gap:10px;">
+                <button id="block-client-btn" class="action-btn secondary" title="Заблокировать"><i class="fas fa-ban"></i></button>
+                <button id="close-ticket-btn" class="action-btn secondary" ${ticket.status === 'closed' ? 'disabled' : ''}>Закрыть тикет</button>
+            </div>
         </div>
         <div class="chat-messages" id="chat-messages"></div>
-        <div class="chat-input-area">
-            <textarea id="reply-input" rows="2" placeholder="Напишите ответ..."></textarea>
-            <button id="send-reply-btn" class="action-btn primary" style="width:auto;">Отправить</button>
+        <div class="chat-input-area ${ticket.status === 'closed' ? 'disabled' : ''}" id="chat-input-area">
+            <textarea id="reply-input" rows="2" placeholder="${ticket.status === 'closed' ? 'Тикет закрыт. Клиент не может писать.' : 'Напишите ответ...'}"></textarea>
+            <button id="send-reply-btn" class="action-btn primary" style="width:auto;"><i class="fas fa-paper-plane"></i></button>
         </div>
     `
 
     document.getElementById('close-ticket-btn').addEventListener('click', closeTicket)
     document.getElementById('send-reply-btn').addEventListener('click', sendReply)
+    document.getElementById('block-client-btn').addEventListener('click', blockClient)
 
     loadMessages(ticket.id)
+
+    // Подписываемся на новые сообщения в реальном времени
+    realtimeChannel = supabase.channel(`ticket-${ticket.id}`)
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'support_messages', filter: `ticket_id=eq.${ticket.id}` }, payload => {
+            // Если пришло сообщение от клиента пока тикет закрывается
+            if (payload.new.sender_type === 'client' && closeTimer) {
+                clearInterval(closeTimer)
+                closeTimer = null
+                supabase.from('support_tickets').update({ status: 'open' }).eq('id', ticket.id).then(() => {
+                    showAlert('Тикет снова открыт!', 'Клиент написал сообщение во время закрытия. Удаление отменено, статус изменен на "open".')
+                    openTicket({...ticket, status: 'open'})
+                })
+            } else if (payload.new.sender_type === 'client') {
+                loadMessages(ticket.id)
+            }
+        })
+        .subscribe()
 }
 
 async function loadMessages(ticketId) {
@@ -134,43 +171,34 @@ async function loadMessages(ticketId) {
         div.className = `message ${msg.sender_type}`
         div.innerHTML = `
             <div>${msg.body.replace(/\n/g, '<br>')}</div>
-            <div class="message-meta">${new Date(msg.created_at).toLocaleString()}</div>
+            <div class="message-meta">${new Date(msg.created_at).toLocaleTimeString()}</div>
         `
         messagesContainer.appendChild(div)
     })
     messagesContainer.scrollTop = messagesContainer.scrollHeight
 }
 
-// === 4. Отправка ответа (клиенту на почту) ===
+// === 4. Отправка ответа ===
 async function sendReply() {
     const input = document.getElementById('reply-input')
     const text = input.value.trim()
-    if (!text || !currentTicketId) return
+    if (!text || !currentTicketId || currentTicket.status === 'closed') return
 
-    // Блокируем кнопку, чтобы не отправить дважды
     const btn = document.getElementById('send-reply-btn')
     btn.disabled = true
-    btn.textContent = 'Отправка...'
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'
 
-    // 1. Сохраняем сообщение в БД
-    const { data, error: msgError } = await supabase
+    const { error: msgError } = await supabase
         .from('support_messages')
-        .insert({
-            ticket_id: currentTicketId,
-            sender_type: 'agent',
-            body: text
-        })
+        .insert({ ticket_id: currentTicketId, sender_type: 'agent', body: text })
         .select()
 
     if (msgError) { 
-        alert('ОШИБКА БАЗЫ ДАННЫХ:\n' + msgError.message + '\n' + msgError.details); 
-        console.error("Полная ошибка:", msgError);
-        btn.disabled = false
-        btn.textContent = 'Отправить'
+        showAlert('Ошибка БД', msgError.message)
+        btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i>'
         return 
     }
 
-    // 2. Вызываем Edge Function для отправки письма
     const { error: fnError } = await supabase.functions.invoke('send-reply-email', {
         body: {
             ticket_id: currentTicketId,
@@ -182,28 +210,68 @@ async function sendReply() {
     })
 
     if (fnError) {
-        alert('Сообщение сохранено, но письмо не отправлено: ' + fnError.message)
+        showAlert('Внимание', 'Сообщение сохранено, но письмо не отправлено: ' + fnError.message)
     } else {
         input.value = ''
         loadMessages(currentTicketId)
     }
 
-    btn.disabled = false
-    btn.textContent = 'Отправить'
+    btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i>'
 }
 
-// === 5. Закрытие тикета ===
+// === 5. Закрытие с таймером на 20 секунд ===
 async function closeTicket() {
     if (!currentTicketId) return
-    const { error } = await supabase
-        .from('support_tickets')
-        .update({ status: 'closed' })
-        .eq('id', currentTicketId)
     
-    if (!error) {
-        currentTicket.status = 'closed'
-        loadTickets()
-        alert('Тикет закрыт')
+    await showAlert('Закрытие тикета', 'Тикет будет удален через 20 секунд. Если клиент напишет сообщение, удаление отменится.')
+    
+    const closeBtn = document.getElementById('close-ticket-btn')
+    closeBtn.disabled = true
+    closeBtn.textContent = 'Удаление через 20с...'
+    
+    let secondsLeft = 20
+    closeTimer = setInterval(async () => {
+        secondsLeft--
+        closeBtn.textContent = `Удаление через ${secondsLeft}с...`
+        
+        if (secondsLeft <= 0) {
+            clearInterval(closeTimer)
+            closeTimer = null
+            closeBtn.textContent = 'Удаление...'
+            
+            // Удаляем тикет
+            const { error } = await supabase.from('support_tickets').delete().eq('id', currentTicketId)
+            if (error) {
+                showAlert('Ошибка', 'Не удалось удалить тикет: ' + error.message)
+                closeBtn.disabled = false
+                closeBtn.textContent = 'Закрыть тикет'
+            } else {
+                // Успешно удален
+                chatPanel.innerHTML = '<div class="empty-state">Тикет удален</div>'
+                if (realtimeChannel) supabase.removeChannel(realtimeChannel)
+                loadTickets()
+            }
+        }
+    }, 1000)
+}
+
+// === 6. Блокировка клиента ===
+async function blockClient() {
+    const email = currentTicket.requester_email
+    if (!email) return
+
+    await showAlert('Блокировка', `Вы уверены, что хотите заблокировать клиента ${email}?`)
+    
+    // Находим профиль клиента по email и ставим is_blocked = true
+    const { error } = await supabase
+        .from('profiles')
+        .update({ is_blocked: true })
+        .eq('email', email)
+    
+    if (error) {
+        showAlert('Ошибка', 'Не удалось заблокировать: ' + error.message)
+    } else {
+        showAlert('Успех', 'Клиент заблокирован. Он больше не сможет создавать тикеты.')
     }
 }
 
@@ -221,21 +289,12 @@ settingsBtn.addEventListener('click', async () => {
 
     const { data: { user } } = await supabase.auth.getUser()
     if (user) {
-        const { data: profile } = await supabase
-            .from('profiles')
-            .select('nickname')
-            .eq('id', user.id)
-            .single()
-        
-        if (profile) {
-            document.getElementById('set-nickname').value = profile.nickname
-        }
+        const { data: profile } = await supabase.from('profiles').select('nickname').eq('id', user.id).single()
+        if (profile) document.getElementById('set-nickname').value = profile.nickname
     }
 })
 
-closeSettingsBtn.addEventListener('click', () => {
-    settingsModal.style.display = 'none'
-})
+closeSettingsBtn.addEventListener('click', () => settingsModal.style.display = 'none')
 
 settingsForm.addEventListener('submit', async (e) => {
     e.preventDefault()
@@ -244,37 +303,25 @@ settingsForm.addEventListener('submit', async (e) => {
 
     const newNickname = document.getElementById('set-nickname').value.trim().toLowerCase()
     const newPassword = document.getElementById('set-password').value
-
     const { data: { user } } = await supabase.auth.getUser()
 
     try {
-        const { error: profileError } = await supabase
-            .from('profiles')
-            .update({ nickname: newNickname })
-            .eq('id', user.id)
-        
+        const { error: profileError } = await supabase.from('profiles').update({ nickname: newNickname }).eq('id', user.id)
         if (profileError) {
             if (profileError.code === '23505') throw new Error('Этот никнейм уже занят')
             throw profileError
         }
-
         if (newPassword) {
             const { error: passError } = await supabase.auth.updateUser({ password: newPassword })
             if (passError) throw passError
         }
-
         settingsMsg.style.color = 'var(--success)'
         settingsMsg.textContent = 'Успешно сохранено!'
-        
-        setTimeout(() => {
-            settingsModal.style.display = 'none'
-        }, 1500)
-
+        setTimeout(() => settingsModal.style.display = 'none', 1500)
     } catch (error) {
         settingsMsg.style.color = 'var(--danger)'
         settingsMsg.textContent = error.message
     }
 })
 
-// Инициализация
 checkSession()
