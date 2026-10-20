@@ -2,9 +2,9 @@
 //  Конфигурация сервера PSMC
 // ============================================================
 const SERVER_CONFIG = {
-    ip: "psmc.minerent.io",
-    javaPort: "25565",
-    bedrockPort: "19132",
+    ip: "psmc-online.ru",
+    // javaPort: "25565",
+    // bedrockPort: "19132",
     version: "1.21.11",
     currentYear: 2026
 };
@@ -121,13 +121,13 @@ async function checkServerStatus(isInitial = false, notification = false) {
 }
 
 async function fetchServerStatus() {
-    const address = `${SERVER_CONFIG.ip}:${SERVER_CONFIG.javaPort}`;
+    const address = `${SERVER_CONFIG.ip}`;
 
     // Список API в порядке приоритета
     const apis = [
         {
             name: 'mcapi.us',
-            url: `https://mcapi.us/server/status?ip=${SERVER_CONFIG.ip}&port=${SERVER_CONFIG.javaPort}`,
+            url: `https://mcapi.us/server/status?ip=${SERVER_CONFIG.ip}`,
             parser: (data) => ({
                 online: data.online || false,
                 players: {
@@ -290,7 +290,7 @@ function setupEventListeners() {
     }
     if (elements.copyIpBtn) {
         elements.copyIpBtn.addEventListener('click', () => {
-            copyToClipboard(`${SERVER_CONFIG.ip}:${SERVER_CONFIG.javaPort}`);
+            copyToClipboard(`${SERVER_CONFIG.ip}`);
         });
     }
     if (elements.tabBtns) {
@@ -309,7 +309,7 @@ function setupEventListeners() {
         btn.addEventListener('click', function(e) {
             let text = '';
             if (this === elements.quickJava) {
-                text = `${SERVER_CONFIG.ip}:${SERVER_CONFIG.javaPort}`;
+                text = `${SERVER_CONFIG.ip}`;
             } else if (this.dataset.address) {
                 text = this.dataset.address;
             }

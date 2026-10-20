@@ -47,7 +47,7 @@
                             <i class="fas fa-map-marker-alt"></i>
                             <div>
                                 <label>Адрес сервера</label>
-                                <strong id="serverIp">psmc.minerent.io:25565</strong>
+                                <strong id="serverIp">psmc-online.ru</strong>
                             </div>
                         </div>
                         <div class="detail-item">
@@ -93,7 +93,7 @@
             
             <div class="platform-tabs">
                 <button class="tab-btn active" data-tab="java">Java Edition</button>
-                <button class="tab-btn" data-tab="bedrock">Bedrock Edition</button>
+                <!-- <button class="tab-btn" data-tab="bedrock">Bedrock Edition</button> -->
             </div>
             
             <div class="tab-content active" id="javaTab">
@@ -118,8 +118,8 @@
                         </div>
                         <h3>3. Введите адрес</h3>
                         <div class="server-address">
-                            <code id="javaAddress">psmc.minerent.io:25565</code>
-                            <button class="copy-small" data-address="psmc.minerent.io:25565">
+                            <code id="javaAddress">psmc-online.ru</code>
+                            <button class="copy-small" data-address="psmc-online.ru">
                                 <i class="far fa-copy"></i>
                             </button>
                         </div>
@@ -143,7 +143,8 @@
                 <button class="info-tab-btn active" data-info-tab="about">ℹ️ Информация</button>
                 <button class="info-tab-btn" data-info-tab="rules">📜 Правила</button>
                 <button class="info-tab-btn" data-info-tab="plugins">🧩 Рекомендуемые моды</button>
-                <button class="info-tab-btn" data-info-tab="shop">🛒 Магазин</button>
+                <button class="info-tab-btn" data-info-tab="where_you_can_search">🔍 Где вы можете нас найти</button>
+                <!-- <button class="info-tab-btn" data-info-tab="shop">🛒 Магазин</button> -->
             </div>
             <div class="info-tabs-content">
                 <!-- Вкладка "Информация" -->
@@ -192,7 +193,7 @@
                             <div>
                                 <div class="info-label">Техподдержка</div>
                                 <div class="info-value">
-                                    <a href="mailto:support@psmc-online.ru" style="color:var(--primary); text-decoration:none;">support@gmail.com</a>
+                                    <a href="mailto:support@psmc-online.ru" style="color:var(--primary); text-decoration:none;">support@psmc-online.ru</a>
                                 </div>
                             </div>
                         </div>
@@ -248,7 +249,19 @@
                         </div>
                     </div>
                     <p class="plugins-note"><i class="fas fa-info-circle"></i> Эти моды/плагины не обязательны, но улучшают опыт игры. Все они совместимы с ванильным сервером.</p>
+                </div>
 
+                <!-- Вкладка "где вы можете найти нас" -->
+                <div class="info-tab-content" id="info-where_you_can_search">
+                    <p>
+                        <a href="https://millida.net/rating/servers/psmc" target="_blank" rel="noopener noreferrer">Psmc — мониторинг серверов Майнкрафт Millida</a>
+                    </p>
+                    <p>
+                        <a href="https://hotmc.ru/vote-291302" target="_blank" rel="noopener noreferrer">Голосование за сервер на HotMC</a>
+                    </p>
+                </div>
+            </div>
+        </div>
 
         <!-- Быстрое подключение -->
         <div class="quick-connect">
@@ -257,14 +270,14 @@
                 <button class="quick-btn java-btn" id="quickJava">
                     <i class="fab fa-java"></i> Копировать для Java
                 </button>
-                <button class="quick-btn bedrock-btn" id="quickBedrock" disabled>
+                <!-- <button class="quick-btn bedrock-btn" id="quickBedrock" disabled>
                     <i class="fas fa-mobile-alt"></i> Bedrock недоступен
-                </button>
+                </button> -->
             </div>
             <div class="address-display">
                 <div class="address-box">
                     <span class="address-label">Java:</span>
-                    <code class="address-value">psmc.minerent.io:25565</code>
+                    <code class="address-value">psmc-online.ru</code>
 
                 </div>
             </div>
@@ -279,11 +292,14 @@
                 </div>
                 
                 <div class="footer-links">
+                    <a href="t.me/psmc_offical" class="footer-link">
+                        <i class="fab fa-telegram"></i> Telegram
+                    </a>                    
                     <a href="https://discord.gg/wAz6SRhhF" class="footer-link">
                         <i class="fab fa-discord"></i> Discord
                     </a>
-                    <a href="https://twitch.tv/ValpiPro" class="footer-link">
-                        <i class="fab fa-twitch"></i> Twitch
+                    <a href="https://youtube.com/@psmc_offical" class="footer-link">
+                        <i class="fab fa-youtube"></i> YouTube
                     </a>
                     <a href="https://www.donationalerts.com/r/ValpiPro" class="footer-link">
                         <i class="fa fa-donate"></i> Donation Alert
