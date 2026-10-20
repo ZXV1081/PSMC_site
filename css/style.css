@@ -1578,6 +1578,77 @@ h2 i {
     font-size: 1.2rem;
 }
 
+/* Вкладка "Где вы можете нас найти" */
+.find-us-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+}
+
+.find-us-card {
+    background: var(--card-bg);
+    padding: 28px 22px 22px;
+    border-radius: 16px;
+    text-align: center;
+    border: 1px solid var(--border);
+    text-decoration: none;
+    color: var(--light);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.find-us-card:hover {
+    transform: translateY(-6px);
+    border-color: var(--primary);
+    box-shadow: 0 12px 28px rgba(74, 158, 255, 0.25);
+}
+
+.find-us-card i {
+    font-size: 2.4rem;
+    color: var(--primary);
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+    background: rgba(74, 158, 255, 0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 6px;
+}
+
+.find-us-card h3 {
+    font-size: 1.2rem;
+    color: var(--light);
+    margin: 0;
+}
+
+.find-us-card p {
+    color: var(--muted);
+    font-size: 0.95rem;
+    line-height: 1.4;
+    margin: 0 0 8px;
+}
+
+.find-us-cta {
+    margin-top: auto;
+    display: inline-block;
+    padding: 8px 18px;
+    border-radius: 8px;
+    background: rgba(74, 158, 255, 0.15);
+    color: var(--primary);
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.find-us-card:hover .find-us-cta {
+    background: var(--primary);
+    color: #fff;
+}
+
 /* Адаптивность для мобильных устройств */
 @media (max-width: 768px) {
     .info-tabs-header {
@@ -1589,6 +1660,9 @@ h2 i {
         border-radius: 8px;
     }
     .plugins-grid {
+        grid-template-columns: 1fr;
+    }
+    .find-us-grid {
         grid-template-columns: 1fr;
     }
 }
